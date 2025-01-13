@@ -34,3 +34,5 @@ betterKernel.iso: betterKernel.bin
 
 	@grub-mkrescue --output=build/$@ iso
 	@rm -rf iso *.o *.bin
+	@echo "We created an .iso file successfully, build/$@"
+
