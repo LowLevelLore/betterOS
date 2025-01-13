@@ -3,7 +3,7 @@ GPPFLAGS = -m32 -fno-stack-protector -fno-use-cxa-atexit -nostdlib -fno-builtin 
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objects = loader.o build/gdt.o kernel.o
+objects = loader.o build/gdt.o build/port.o kernel.o
 
 build/%.o: src/%.cpp
 	@g++ $(GPPFLAGS) -o $@ -c $<
@@ -17,10 +17,6 @@ build/%.o: src/%.cpp
 
 betterKernel.bin: linker.ld $(objects)
 	ld $(LDPARAMS) -T $< -o $@ $(objects)
-
-clean:
-	@rm -rf *.o *.bin *.iso iso/
-	@rm -rd build/*
 
 betterKernel.iso: betterKernel.bin
 	@mkdir -p build/
@@ -36,8 +32,19 @@ betterKernel.iso: betterKernel.bin
 	@echo ' multiboot /boot/betterKernel.bin' >> iso/boot/grub/grub.cfg
 	@echo ' boot' >> iso/boot/grub/grub.cfg
 	@echo '}' >> iso/boot/grub/grub.cfg
-
 	@grub-mkrescue --output=build/$@ iso
-	@rm -rf iso *.o *.bin
+	@rm -rf iso *.o *.bin build/*.o
 	@echo "We created an .iso file successfully, build/$@"
+
+.PHONY: clean
+clean:
+	@rm -rf *.o *.bin *.iso iso/
+	@rm -rf build/*
+
+commit:
+	make clean
+	git add .
+	git commit -m "$(MSG)"
+	git push -u master
+
 
