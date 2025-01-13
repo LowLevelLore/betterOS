@@ -1,21 +1,26 @@
 
-GPPFLAGS = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore
+GPPFLAGS = -m32 -fno-stack-protector -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objects = loader.o kernel.o
+objects = loader.o build/gdt.o kernel.o
 
-kernel.o: kernel.cpp
-	@g++ $(GPPFLAGS) -m32 -o kernel.o -c kernel.cpp
+build/%.o: src/%.cpp
+	@g++ $(GPPFLAGS) -o $@ -c $<
 
-loader.o: loader.s
-	@as $(ASPARAMS) -o loader.o loader.s
+
+%.o: %.cpp
+	@g++ $(GPPFLAGS) -o $@ -c $<
+
+%.o: %.s
+	@as $(ASPARAMS) -o $@ $<
 
 betterKernel.bin: linker.ld $(objects)
-	@ld $(LDPARAMS) -T $< -o $@ $(objects)
+	ld $(LDPARAMS) -T $< -o $@ $(objects)
 
 clean:
 	@rm -rf *.o *.bin *.iso iso/
+	@rm -rd build/*
 
 betterKernel.iso: betterKernel.bin
 	@mkdir -p build/

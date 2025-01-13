@@ -19,3 +19,8 @@ After you type in <b>vncviewer</b>, you need to enter the address displayed on t
     <li> xorriso </li>
 </ol>
 
+
+### Tips for future reference:
+<ol>
+    <li> <b>__stack_chk_fail_local</b> ERROR -> Add -fno-stack-protector in GCC Flags </li>
+</ol>
