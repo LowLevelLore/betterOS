@@ -16,7 +16,7 @@ build/%.o: src/%.cpp
 	@as $(ASPARAMS) -o $@ $<
 
 betterKernel.bin: linker.ld $(objects)
-	ld $(LDPARAMS) -T $< -o $@ $(objects)
+	@ld $(LDPARAMS) -T $< -o $@ $(objects)
 
 betterKernel.iso: betterKernel.bin
 	@mkdir -p build/
@@ -42,9 +42,9 @@ clean:
 	@rm -rf build/*
 
 commit:
-	make clean
-	git add .
-	git commit -m "$(MSG)"
-	git push -u master
+	@make clean
+	@git add .
+	@git commit -m "$(MSG)"
+	@git push -u master
 
 
