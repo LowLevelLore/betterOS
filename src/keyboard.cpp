@@ -10,7 +10,9 @@ KeyboardDriver::KeyboardDriver(InterruptManager *interruptManager) : InterruptHa
     }
     commandPort.Write(0xAE); // Tells PIC to start sending interrupts
     commandPort.Write(0x20); // Get Current status
-    uint8_t status = (dataPort.Read() | 1) & -0x10;
+    uint8_t status = dataPort.Read();
+    status |= 0x01;  // Enable interrupts
+    status &= ~0x10; // Clear bit 4 (disable keyboard translation)
     commandPort.Write(0x60);
     dataPort.Write(status);
     dataPort.Write(0xF4);
