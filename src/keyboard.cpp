@@ -1,30 +1,32 @@
 #include "headers/keyboard.hpp"
 
 void printf(const char *str);
+void printd(uint8_t integer);
 
-KeyboardDriver::KeyboardDriver(InterruptManager *interruptManager) : InterruptHandler(0x21, interruptManager), dataPort(0x60), commandPort(0x64)
+KeyboardDriver::KeyboardDriver(InterruptManager *manager)
+    : InterruptHandler(manager, 0x21),
+      dataport(0x60),
+      commandport(0x64)
 {
-    while (commandPort.Read() & 0x1)
-    {
-        dataPort.Read();
-    }
-    commandPort.Write(0xAE); // Tells PIC to start sending interrupts
-    commandPort.Write(0x20); // Get Current status
-    uint8_t status = dataPort.Read();
-    status |= 0x01;  // Enable interrupts
-    status &= ~0x10; // Clear bit 4 (disable keyboard translation)
-    commandPort.Write(0x60);
-    dataPort.Write(status);
-    dataPort.Write(0xF4);
+    while (commandport.Read() & 0x1)
+        dataport.Read();
+    commandport.Write(0xae); // activate interrupts
+    commandport.Write(0x20); // command 0x20 = read controller command byte
+    uint8_t status = (dataport.Read() | 1) & ~0x10;
+    commandport.Write(0x60); // command 0x60 = set controller command byte
+    dataport.Write(status);
+    dataport.Write(0xf4);
 }
-KeyboardDriver::~KeyboardDriver() {}
+
+KeyboardDriver::~KeyboardDriver()
+{
+}
+
 uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
 {
-    uint8_t key = dataPort.Read();
-    char msg[] = "KEYBOARD 0x00";
-    char hex[] = "0123456789ABCDEF";
-    msg[11] = hex[(key >> 4) & 0x0F];
-    msg[12] = hex[(key) & 0x0F];
-    printf(msg);
+    uint8_t key = dataport.Read();
+    printd(key);
+    printf(" ");
+
     return esp;
-};
+}

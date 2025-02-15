@@ -7,12 +7,11 @@
 
 class KeyboardDriver : public InterruptHandler
 {
-protected:
-    Port8Bit dataPort;
-    Port8Bit commandPort;
+    Port8Bit dataport;
+    Port8Bit commandport;
 
 public:
-    KeyboardDriver(InterruptManager *interruptManager);
+    KeyboardDriver(InterruptManager *manager);
     ~KeyboardDriver();
     virtual uint32_t HandleInterrupt(uint32_t esp);
 };

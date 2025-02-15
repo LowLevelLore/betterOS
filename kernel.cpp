@@ -80,6 +80,13 @@ void printf(const char *str)
   }
 }
 
+void printd(uint8_t integer)
+{
+  if (integer > 9)
+    printd(integer / 10);
+  putchar('0' + (integer % 10));
+}
+
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
