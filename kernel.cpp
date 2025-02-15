@@ -1,60 +1,105 @@
-#include "src/headers/gdt.h"
+#include "src/headers/types.hpp"
+#include "src/headers/interrupts.hpp"
+#include "src/headers/gdt.hpp"
+#include "src/headers/keyboard.hpp"
 
-const uint8_t MAX_COLS = 80;
-const uint8_t MAX_ROWS = 25;
+#define VGA_BASE (uint16_t *)0xb8000
+#define MAX_ROWS 25
+#define MAX_COLS 80
+#define DEFAULT_FORMATTING 0x07
 
-void clearVgaBuffer(){
-    static uint16_t* vga_address = (uint16_t*)0xb8000;
-    for (uint8_t i = 0; i < MAX_ROWS; i++) {
-      for (uint8_t j = 0; j < MAX_COLS; j++) {
-        vga_address[i * MAX_COLS + j] = ' ';
-      }
-    }
+static uint16_t *vga_base = (uint16_t *)VGA_BASE;
+static int row = 0;
+static int col = 0;
+
+void clear_screen()
+{
+  for (int i = 0; i < MAX_ROWS * MAX_COLS; i++)
+  {
+    vga_base[i] = (DEFAULT_FORMATTING << 8) | ' ';
+  }
+  row = 0;
+  col = 0;
 }
 
-void printf(const char* str) {
-    static uint16_t* vga_address = (uint16_t*)0xb8000;
-
-    static uint8_t row = 0, col = 0;
-    const unsigned short default_color = 0x07;
-
-    for (int i = 0; str[i] != '\0'; i++) {
-        if (str[i] == '\n'){
-          row++;
-          col = 0;
-        }else{
-          vga_address[MAX_COLS*row + col] = (default_color << 8) | str[i];
-          col++;
-        }
-        if(col >= MAX_COLS){
-          row++;
-          if (row == MAX_ROWS){
-            clearVgaBuffer();
-            row = 0;
-          }
-          col = 0;
-        }
-    }
+void scroll_screen()
+{
+  for (int i = 0; i < (MAX_ROWS - 1) * MAX_COLS; i++)
+  {
+    vga_base[i] = vga_base[i + MAX_COLS];
+  }
+  for (int i = (MAX_ROWS - 1) * MAX_COLS; i < MAX_ROWS * MAX_COLS; i++)
+  {
+    vga_base[i] = (DEFAULT_FORMATTING << 8) | ' ';
+  }
+  row = MAX_ROWS - 1;
+  col = 0;
 }
 
-typedef void (*constructor)() ;
+void putchar(char ch)
+{
+  switch (ch)
+  {
+  case '\n':
+    row++;
+    col = 0;
+    break;
+  case '\t':
+    col = (col + 4) & ~3;
+    break;
+  case '\b':
+    if (col > 0)
+    {
+      col--;
+      vga_base[row * MAX_COLS + col] = (DEFAULT_FORMATTING << 8) | ' ';
+    }
+    break;
+  default:
+    vga_base[row * MAX_COLS + col] = (DEFAULT_FORMATTING << 8) | ch;
+    col++;
+    break;
+  }
+
+  if (col >= MAX_COLS)
+  {
+    row++;
+    col = 0;
+  }
+
+  if (row >= MAX_ROWS)
+  {
+    scroll_screen();
+  }
+}
+
+void printf(const char *str)
+{
+  for (uint32_t i = 0; str[i] != '\0'; i++)
+  {
+    putchar(str[i]);
+  }
+}
+
+typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
-extern "C" void callConstructors(){
-  for(constructor* i = &start_ctors; i != &end_ctors; i++){
+extern "C" void callConstructors()
+{
+  for (constructor *i = &start_ctors; i != &end_ctors; i++)
     (*i)();
-  }
 }
 
-extern "C" void kernel_main(const void* multiboot_struct, uint32_t magicnumber){
-  clearVgaBuffer();
-  printf("Hello World!!\n");
-  for (uint8_t i = 0; i < 27; i++) {
-    printf("Again\n");
-  }
-  GlobalDescriptorTable gdt;
+extern "C" void kernelMain(const void *multiboot_structure, uint32_t /*multiboot_magic*/)
+{
+  printf("betterOS - Dedicated to xZist\n\n");
 
-  while(1){
-    
-  };
+  GlobalDescriptorTable gdt;
+  InterruptManager interrupts(0x20, &gdt);
+
+  KeyboardDriver keyboard(&interrupts);
+
+  interrupts.Activate();
+
+  while (1)
+    ;
 }

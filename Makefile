@@ -1,22 +1,28 @@
 
-GPPFLAGS = -m32 -fno-stack-protector -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore
+GPP = x86_64-elf-g++
+AS = x86_64-elf-as
+LD = x86_64-elf-ld
+GPPFLAGS = -m32 -fno-pic -fno-stack-protector -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objects = loader.o build/gdt.o build/port.o kernel.o
+objects = loader.o build/gdt.o build/port.o build/interruptstubs.o build/interrupts.o build/keyboard.o kernel.o 
 
 build/%.o: src/%.cpp
-	@g++ $(GPPFLAGS) -o $@ -c $<
+	@$(GPP) $(GPPFLAGS) -o $@ -c $<
 
 
 %.o: %.cpp
-	@g++ $(GPPFLAGS) -o $@ -c $<
+	@$(GPP) $(GPPFLAGS) -o $@ -c $<
 
 %.o: %.s
-	@as $(ASPARAMS) -o $@ $<
+	@$(AS) $(ASPARAMS) -o $@ $<
+
+build/%.o: src/%.s
+	@$(AS) $(ASPARAMS) -o $@ $<
 
 betterKernel.bin: linker.ld $(objects)
-	@ld $(LDPARAMS) -T $< -o $@ $(objects)
+	@$(LD) $(LDPARAMS) -T $< -o $@ $(objects)
 
 betterKernel.iso: betterKernel.bin
 	@mkdir -p build/
@@ -32,7 +38,7 @@ betterKernel.iso: betterKernel.bin
 	@echo ' multiboot /boot/betterKernel.bin' >> iso/boot/grub/grub.cfg
 	@echo ' boot' >> iso/boot/grub/grub.cfg
 	@echo '}' >> iso/boot/grub/grub.cfg
-	@grub-mkrescue --output=build/$@ iso
+	@grub-mkrescue --output=betterKernel.iso iso
 	@rm -rf iso *.o *.bin build/*.o
 	@echo "We created an .iso file successfully, build/$@"
 

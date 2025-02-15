@@ -3,29 +3,31 @@
 .set CHECKSUM, -(MAGIC + FLAGS)
 
 .section .multiboot
-  .long MAGIC
-  .long FLAGS
-  .long CHECKSUM
+    .long MAGIC
+    .long FLAGS
+    .long CHECKSUM
+
 
 .section .text
-.extern kernel_main
+.extern kernelMain
 .extern callConstructors
 .global loader
 
+
 loader:
-  mov $kernel_stack, %esp
+    mov $kernel_stack, %esp
+    call callConstructors
+    push %eax
+    push %ebx
+    call kernelMain
 
-  call callConstructors
-
-  push %eax
-  push %ebx
-  call kernel_main
 
 _stop:
-  cli
-  hlt
-  jmp _stop
+    cli
+    hlt
+    jmp _stop
+
 
 .section .bss
-.space 2*1014*1024 # 2MiB
+.space 2*1024*1024; # 2 MiB
 kernel_stack:
