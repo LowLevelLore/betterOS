@@ -1,13 +1,118 @@
 #include "headers/keyboard.hpp"
 #include "headers/stdlib.hpp"
 
-void printf(const char *str);
-void printd(uint8_t integer);
+KeyboardEventHandler::KeyboardEventHandler()
+{
+    shiftPressed = false;
+    capsOn = false;
+};
+KeyboardEventHandler::~KeyboardEventHandler() {};
 
-KeyboardDriver::KeyboardDriver(InterruptManager *manager)
+void KeyboardEventHandler::onKeyPress(uint8_t scanCode)
+{
+    // Handle modifier state changes
+    switch (scanCode)
+    {
+    case 0x2A: // Left Shift
+    case 0x36: // Right Shift
+        shiftPressed = true;
+        break;
+    case 0x3A: // Caps Lock
+        capsOn = !capsOn;
+        break;
+    }
+}
+
+void KeyboardEventHandler::onKeyRelease(uint8_t scanCode)
+{
+    switch (scanCode)
+    {
+    case 0x2A: // Left Shift release
+    case 0x36: // Right Shift release
+        shiftPressed = false;
+        break;
+    }
+}
+
+VGAKeyboardEventHandler::VGAKeyboardEventHandler() {};
+VGAKeyboardEventHandler::~VGAKeyboardEventHandler() {};
+
+void VGAKeyboardEventHandler::onKeyPress(uint8_t scanCode)
+{
+    KeyboardEventHandler::onKeyPress(scanCode);
+
+    bool isExtended = scanCode & 0x80;
+    uint8_t baseCode = scanCode & 0x7F;
+
+    // Handle special keys first
+    switch (baseCode)
+    {
+    case 0x1C:
+        putchar('\n');
+        return; // Enter
+    case 0x0E:
+        putchar('\b');
+        return; // Backspace
+    case 0x39:
+        putchar(' ');
+        return; // Space
+    }
+
+    if (baseCode < sizeof(keymap))
+    {
+        char ch = shiftPressed ? shiftedKeymap[baseCode] : keymap[baseCode];
+        if (isExtended)
+        {
+            switch (baseCode)
+            {
+            case 0x48:
+                ch = '^';
+                break; // Up
+            case 0x50:
+                ch = 'v';
+                break; // Down
+            case 0x4B:
+                ch = '<';
+                break; // Left
+            case 0x4D:
+                ch = '>';
+                break; // Right
+            }
+        }
+
+        // Caps Lock logic
+        if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
+        {
+            bool effectiveShift = shiftPressed ^ capsOn;
+            ch = effectiveShift ? shiftedKeymap[baseCode] : keymap[baseCode];
+        }
+
+        if (ch != 0)
+        {
+            putchar(ch);
+        }
+    }
+}
+
+void VGAKeyboardEventHandler::onKeyRelease(uint8_t scanCode)
+{
+    KeyboardEventHandler::onKeyRelease(scanCode);
+}
+
+KeyboardDriver::KeyboardDriver(InterruptManager *manager, KeyboardEventHandler *handler)
     : InterruptHandler(manager, 0x21),
+      Driver("xZist/keyboard"),
+      handler(handler),
       dataPort(0x60),
       commandPort(0x64)
+{
+}
+
+KeyboardDriver::~KeyboardDriver()
+{
+}
+
+void KeyboardDriver::Activate()
 {
     while (commandPort.Read() & 0x1)
         dataPort.Read();
@@ -19,106 +124,47 @@ KeyboardDriver::KeyboardDriver(InterruptManager *manager)
     dataPort.Write(0xF4);
 }
 
-KeyboardDriver::~KeyboardDriver()
+void KeyboardDriver::DeActivate() {
+};
+
+int32_t KeyboardDriver::Reset()
 {
-}
+    return 0;
+};
 
 uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
 {
-    static bool extendedKey = false; // Track if the next scancode is an extended key
+    static bool extendedKey = false;
     uint8_t key = dataPort.Read();
 
     if (key == 0xE0)
     {
-        extendedKey = true; // Next scancode is part of an extended key
+        extendedKey = true;
         return esp;
     }
 
-    switch (key)
+    bool isKeyUp = (key & 0x80 || key == 0xAA || key == 0xB6);
+    uint8_t makeCode = key & 0x7F;
+
+    if (extendedKey)
     {
-    case 0x2A: // Left Shift pressed
-    case 0x36: // Right Shift pressed
-        shiftPressed = true;
-        break;
-    case 0xAA: // Left Shift released
-    case 0xB6: // Right Shift released
-        shiftPressed = false;
-        break;
-    case 0x3A: // Caps Lock toggle
-        capsOn = !capsOn;
-        break;
-    case 0x39: // Space
-        putchar(' ');
-        break;
-    case 0x0F: // Tab
-        putchar('\t');
-        break;
-    case 0x1C: // Enter
-        putchar('\n');
-        break;
-    case 0x0E: // Backspace
-        putchar('\b');
-        break;
-    default:
-        if (key < 0x80)
+        // Handle extended key logic
+        extendedKey = false;
+        if (!isKeyUp)
         {
-            if (extendedKey)
-            {
-                switch (key)
-                {
-                case 0x48:
-                    putchar('^');
-                    break; // Up Arrow
-                case 0x50:
-                    putchar('v');
-                    break; // Down Arrow
-                case 0x4B:
-                    putchar('<');
-                    break; // Left Arrow
-                case 0x4D:
-                    putchar('>');
-                    break; // Right Arrow
-                case 0x52:
-                    printf("Ins\t");
-                    break; // Insert
-                case 0x53:
-                    printf("Del\t");
-                    break; // Delete
-                case 0x47:
-                    printf("Hom\t");
-                    break; // Home
-                case 0x4F:
-                    printf("End\t");
-                    break; // End
-                case 0x49:
-                    printf("Pup\t");
-                    break; // Page Up
-                case 0x51:
-                    printf("Pdn\t");
-                    break; // Page Down
-                default:
-                    break;
-                }
-                extendedKey = false;
-            }
-            else
-            {
-                if (key < sizeof(keymap))
-                {
-                    char ch = shiftPressed ? shiftedKeymap[key] : keymap[key];
-                    if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
-                    {
-                        bool effectiveShift = shiftPressed ^ capsOn;
-                        ch = effectiveShift ? shiftedKeymap[key] : keymap[key];
-                    }
-                    if (ch != 0)
-                    {
-                        putchar(ch);
-                    }
-                }
-            }
+            handler->onKeyPress(makeCode | 0x80); // Mark as extended
         }
-        break;
+        return esp;
     }
+
+    if (isKeyUp)
+    {
+        handler->onKeyRelease(makeCode);
+    }
+    else
+    {
+        handler->onKeyPress(makeCode);
+    }
+
     return esp;
 }

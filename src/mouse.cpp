@@ -1,9 +1,59 @@
 #include "headers/mouse.hpp"
 
-MouseDriver::MouseDriver(InterruptManager *manager)
+MouseEventHandler::MouseEventHandler()
+{
+    x = 0;
+    y = 0;
+};
+MouseEventHandler::~MouseEventHandler() {};
+void MouseEventHandler::OnMouseDown(uint8_t button) {};
+void MouseEventHandler::OnMouseUp(uint8_t button) {};
+void MouseEventHandler::OnMouseMove(int32_t deltaX, int32_t deltaY) {};
+
+VGAMouseEventHandler::VGAMouseEventHandler()
+{
+    x = 0;
+    y = 0;
+    vga_base[MAX_COLS * y + x] = ((vga_base[MAX_COLS * y + x] & 0x0F00) << 4) | ((vga_base[MAX_COLS * y + x] & 0xF000) >> 4) | ((vga_base[MAX_COLS * y + x] & 0x00FF));
+};
+VGAMouseEventHandler::~VGAMouseEventHandler() {};
+
+void VGAMouseEventHandler::OnMouseDown(uint8_t button) {
+    // printf("Mouse Down\t");
+};
+void VGAMouseEventHandler::OnMouseUp(uint8_t button) {
+    // printf("Mouse Up\t");
+};
+void VGAMouseEventHandler::OnMouseMove(int32_t deltaX, int32_t deltaY)
+{
+    vga_base[MAX_COLS * y + x] = ((vga_base[MAX_COLS * y + x] & 0x0F00) << 4) | ((vga_base[MAX_COLS * y + x] & 0xF000) >> 4) | ((vga_base[MAX_COLS * y + x] & 0x00FF));
+    x += (deltaX);
+    if (x >= MAX_COLS)
+        x = MAX_COLS - 1;
+    if (x < 0)
+        x = 0;
+    y += (deltaY);
+    if (y >= MAX_ROWS)
+        y = MAX_ROWS - 1;
+    if (y < 0)
+        y = 0;
+    vga_base[MAX_COLS * y + x] = ((vga_base[MAX_COLS * y + x] & 0x0F00) << 4) | ((vga_base[MAX_COLS * y + x] & 0xF000) >> 4) | ((vga_base[MAX_COLS * y + x] & 0x00FF));
+};
+
+MouseDriver::MouseDriver(InterruptManager *manager, MouseEventHandler *handler)
     : InterruptHandler(manager, 0x2C),
+      Driver("xZist/mouse"),
+      handler(handler),
       dataPort(0x60),
       commandPort(0x64)
+{
+}
+
+MouseDriver::~MouseDriver()
+{
+}
+
+void MouseDriver::Activate()
 {
     uint16_t *VideoMemory = (uint16_t *)0xb8000;
     offset = 0;
@@ -16,15 +66,21 @@ MouseDriver::MouseDriver(InterruptManager *manager)
     commandPort.Write(0xD4);
     dataPort.Write(0xF4);
     dataPort.Read();
-}
-MouseDriver::~MouseDriver()
+};
+
+void MouseDriver::DeActivate() {
+
+};
+
+int32_t MouseDriver::Reset()
 {
-}
+    return 0;
+};
 
 uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
 {
     uint8_t status = commandPort.Read();
-    if (!(status & 0x20))
+    if ((!(status & 0x20)) || !handler)
         return esp;
     buffer[offset] = dataPort.Read();
     offset = (offset + 1) % 3;
@@ -32,29 +88,19 @@ uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
     {
         if (buffer[1] != 0 || buffer[2] != 0)
         {
-            col += buffer[1];
-            if (col >= 80)
-                col = 79;
-            if (col < 0)
-                col = 0;
-            row -= buffer[2];
-            if (row >= 25)
-                row = 24;
-            if (row < 0)
-                row = 0;
-
-            for (uint8_t i = 0; i < 3; i++)
+            handler->OnMouseMove(buffer[1], -buffer[2]);
+        }
+        for (uint8_t i = 0; i < 3; i++)
+        {
+            if (((buffer[0] & (0x01 << i)) != (buttons & (0x01 << i))))
             {
-                if (((buffer[0] & (0x01 << i)) != (buttons & (0x01 << i))))
+                if (buttons * (0x1 << i))
                 {
-                    // vga_base[row * MAX_COLS + col] = (' ' | (((0xF << 4) | 0x80) << 8));
-                    // char *msg = "(00, 00), ";
-                    // msg[1] = '0' + row / 10;
-                    // msg[2] = '0' + row % 10;
-                    // msg[5] = '0' + col / 10;
-                    // msg[6] = '0' + col % 10;
-                    // printf(msg);
-                    // TODO: BUTTON PRESSES
+                    handler->OnMouseUp(i + 1);
+                }
+                else
+                {
+                    handler->OnMouseDown(i + 1);
                 }
             }
         }

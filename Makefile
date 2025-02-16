@@ -6,7 +6,7 @@ GPPFLAGS = -m32 -fno-pic -fno-stack-protector -fno-use-cxa-atexit -nostdlib -fno
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objects = loader.o build/gdt.o build/port.o build/interruptstubs.o build/interrupts.o build/keyboard.o build/mouse.o build/stdlib.o kernel.o 
+objects = loader.o build/gdt.o build/port.o build/interruptstubs.o build/interrupts.o build/driver.o build/keyboard.o build/mouse.o build/stdlib.o  kernel.o 
 
 build/%.o: src/%.cpp
 	@$(GPP) $(GPPFLAGS) -o $@ -c $<

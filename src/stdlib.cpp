@@ -99,3 +99,12 @@ void printd(uint8_t integer)
         printd(integer / 10);
     putchar('0' + (integer % 10));
 }
+
+void printhex(uint8_t integer)
+{
+    char *msg = "0x00";
+    char *hex = "0123456789ABCDEF";
+    msg[2] = hex[(integer >> 4) & 0xF];
+    msg[3] = hex[integer & 0xF];
+    printf(msg);
+}

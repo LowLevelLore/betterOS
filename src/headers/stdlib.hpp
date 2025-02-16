@@ -20,6 +20,7 @@ void scroll_screen();
 void putchar(char ch);
 void printf(const char *str);
 void printd(uint8_t integer);
+void printhex(uint8_t integer);
 
 static inline void outb(unsigned short int port, unsigned char value)
 {
