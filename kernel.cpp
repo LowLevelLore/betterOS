@@ -2,6 +2,7 @@
 #include "src/headers/interrupts.hpp"
 #include "src/headers/gdt.hpp"
 #include "src/headers/keyboard.hpp"
+#include "src/headers/mouse.hpp"
 #include "src/headers/stdlib.hpp"
 
 typedef void (*constructor)();
@@ -15,11 +16,12 @@ extern "C" void callConstructors()
 
 extern "C" void kernelMain(const void *multiboot_structure, uint32_t /*multiboot_magic*/)
 {
-  printf("betterOS - Dedicated to xZist\n\n");
+  printf("betterOS - boot successful\n\t\tBy: xZist\n\n");
 
   GlobalDescriptorTable gdt;
   InterruptManager interrupts(0x20, &gdt);
 
+  MouseDriver mouse(&interrupts);
   KeyboardDriver keyboard(&interrupts);
 
   interrupts.Activate();

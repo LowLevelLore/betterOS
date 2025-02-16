@@ -6,56 +6,27 @@ void printd(uint8_t integer);
 
 KeyboardDriver::KeyboardDriver(InterruptManager *manager)
     : InterruptHandler(manager, 0x21),
-      dataport(0x60),
-      commandport(0x64)
+      dataPort(0x60),
+      commandPort(0x64)
 {
-    while (commandport.Read() & 0x1)
-        dataport.Read();
-    commandport.Write(0xae); // activate interrupts
-    commandport.Write(0x20); // command 0x20 = read controller command byte
-    uint8_t status = (dataport.Read() | 1) & ~0x10;
-    commandport.Write(0x60); // command 0x60 = set controller command byte
-    dataport.Write(status);
-    dataport.Write(0xf4);
+    while (commandPort.Read() & 0x1)
+        dataPort.Read();
+    commandPort.Write(0xAE); // activate interrupts
+    commandPort.Write(0x20); // command 0x20 = read controller command byte
+    uint8_t status = (dataPort.Read() | 1) & ~0x10;
+    commandPort.Write(0x60); // command 0x60 = set controller command byte
+    dataPort.Write(status);
+    dataPort.Write(0xF4);
 }
 
 KeyboardDriver::~KeyboardDriver()
 {
 }
 
-// uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
-// {
-//     uint8_t key = dataport.Read();
-//     switch (key)
-//     {
-//     case 0x2A:
-//     case 0x36:
-//         shiftPressed = true;
-//         break;
-//     case 0xAA:
-//     case 0xB6:
-//         shiftPressed = false;
-//         break;
-//     case 0x3A:
-//         capsOn = not capsOn;
-//         break;
-//     case 0x30:
-//         putchar(' ');
-//         break;
-//     case 0x0F:
-//         putchar('\t');
-//         break;
-//     default:
-//         break;
-//     }
-
-//     return esp;
-// }
-
 uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
 {
     static bool extendedKey = false; // Track if the next scancode is an extended key
-    uint8_t key = dataport.Read();
+    uint8_t key = dataPort.Read();
 
     if (key == 0xE0)
     {

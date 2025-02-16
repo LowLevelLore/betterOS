@@ -32,8 +32,8 @@ class KeyboardDriver : public InterruptHandler
     bool capsOn = false;
     bool shiftPressed = false;
 
-    Port8Bit dataport;
-    Port8Bit commandport;
+    Port8Bit dataPort;
+    Port8Bit commandPort;
 
 public:
     KeyboardDriver(InterruptManager *manager);

@@ -1,6 +1,6 @@
 #include "headers/interrupts.hpp"
+#include "headers/stdlib.hpp"
 
-void printf(const char *str);
 InterruptHandler::InterruptHandler(InterruptManager *interruptManager, uint8_t InterruptNumber)
 {
     this->InterruptNumber = InterruptNumber;
@@ -164,12 +164,13 @@ uint32_t InterruptManager::DoHandleInterrupt(uint8_t interrupt, uint32_t esp)
         printf(foo);
     }
 
-    // hardware interrupts must be acknowledged
     if (hardwareInterruptOffset <= interrupt && interrupt < hardwareInterruptOffset + 16)
     {
         programmableInterruptControllerMasterCommandPort.Write(0x20);
         if (hardwareInterruptOffset + 8 <= interrupt)
+        {
             programmableInterruptControllerSlaveCommandPort.Write(0x20);
+        }
     }
 
     return esp;
