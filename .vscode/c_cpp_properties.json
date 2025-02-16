@@ -10,7 +10,7 @@
       "cppStandard": "c++23",
       "intelliSenseMode": "linux-gcc-x64",
       "compilerArgs": [
-        ""
+         "-Wno-write-strings"
       ]
     }
   ],

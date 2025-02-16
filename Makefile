@@ -2,11 +2,11 @@
 GPP = x86_64-elf-g++
 AS = x86_64-elf-as
 LD = x86_64-elf-ld
-GPPFLAGS = -m32 -fno-pic -fno-stack-protector -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore
+GPPFLAGS = -m32 -fno-pic -fno-stack-protector -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -Wno-write-strings
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objects = loader.o build/gdt.o build/port.o build/interruptstubs.o build/interrupts.o build/keyboard.o kernel.o 
+objects = loader.o build/gdt.o build/port.o build/interruptstubs.o build/interrupts.o build/keyboard.o build/stdlib.o kernel.o 
 
 build/%.o: src/%.cpp
 	@$(GPP) $(GPPFLAGS) -o $@ -c $<
