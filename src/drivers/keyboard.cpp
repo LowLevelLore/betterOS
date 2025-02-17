@@ -1,13 +1,15 @@
 #include "all.hpp"
 
-KeyboardEventHandler::KeyboardEventHandler()
+using namespace better_os::lib;
+
+better_os::drivers::KeyboardEventHandler::KeyboardEventHandler()
 {
     shiftPressed = false;
     capsOn = false;
 };
-KeyboardEventHandler::~KeyboardEventHandler() {};
+better_os::drivers::KeyboardEventHandler::~KeyboardEventHandler() {};
 
-void KeyboardEventHandler::onKeyPress(uint8_t scanCode)
+void better_os::drivers::KeyboardEventHandler::onKeyPress(uint8_t scanCode)
 {
     // Handle modifier state changes
     switch (scanCode)
@@ -22,7 +24,7 @@ void KeyboardEventHandler::onKeyPress(uint8_t scanCode)
     }
 }
 
-void KeyboardEventHandler::onKeyRelease(uint8_t scanCode)
+void better_os::drivers::KeyboardEventHandler::onKeyRelease(uint8_t scanCode)
 {
     switch (scanCode)
     {
@@ -33,10 +35,10 @@ void KeyboardEventHandler::onKeyRelease(uint8_t scanCode)
     }
 }
 
-VGAKeyboardEventHandler::VGAKeyboardEventHandler() {};
-VGAKeyboardEventHandler::~VGAKeyboardEventHandler() {};
+better_os::drivers::VGAKeyboardEventHandler::VGAKeyboardEventHandler() {};
+better_os::drivers::VGAKeyboardEventHandler::~VGAKeyboardEventHandler() {};
 
-void VGAKeyboardEventHandler::onKeyPress(uint8_t scanCode)
+void better_os::drivers::VGAKeyboardEventHandler::onKeyPress(uint8_t scanCode)
 {
     KeyboardEventHandler::onKeyPress(scanCode);
 
@@ -93,12 +95,12 @@ void VGAKeyboardEventHandler::onKeyPress(uint8_t scanCode)
     }
 }
 
-void VGAKeyboardEventHandler::onKeyRelease(uint8_t scanCode)
+void better_os::drivers::VGAKeyboardEventHandler::onKeyRelease(uint8_t scanCode)
 {
     KeyboardEventHandler::onKeyRelease(scanCode);
 }
 
-KeyboardDriver::KeyboardDriver(InterruptManager *manager, KeyboardEventHandler *handler)
+better_os::drivers::KeyboardDriver::KeyboardDriver(better_os::basics::InterruptManager *manager, KeyboardEventHandler *handler)
     : InterruptHandler(manager, 0x21),
       Driver("xZist/keyboard"),
       handler(handler),
@@ -107,11 +109,11 @@ KeyboardDriver::KeyboardDriver(InterruptManager *manager, KeyboardEventHandler *
 {
 }
 
-KeyboardDriver::~KeyboardDriver()
+better_os::drivers::KeyboardDriver::~KeyboardDriver()
 {
 }
 
-void KeyboardDriver::Activate()
+void better_os::drivers::KeyboardDriver::Activate()
 {
     while (commandPort.Read() & 0x1)
         dataPort.Read();
@@ -123,15 +125,15 @@ void KeyboardDriver::Activate()
     dataPort.Write(0xF4);
 }
 
-void KeyboardDriver::DeActivate() {
+void better_os::drivers::KeyboardDriver::DeActivate() {
 };
 
-int32_t KeyboardDriver::Reset()
+int32_t better_os::drivers::KeyboardDriver::Reset()
 {
     return 0;
 };
 
-uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
+uint32_t better_os::drivers::KeyboardDriver::HandleInterrupt(uint32_t esp)
 {
     static bool extendedKey = false;
     uint8_t key = dataPort.Read();

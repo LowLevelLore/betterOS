@@ -1,6 +1,6 @@
 #include "all.hpp"
 
-void clear_screen()
+void better_os::lib::clear_screen()
 {
     for (int i = 0; i < MAX_ROWS * MAX_COLS; i++)
     {
@@ -10,7 +10,7 @@ void clear_screen()
     col = 0;
 }
 
-void scroll_screen()
+void better_os::lib::scroll_screen()
 {
     for (int i = 0; i < (MAX_ROWS - 1) * MAX_COLS; i++)
     {
@@ -24,7 +24,7 @@ void scroll_screen()
     col = 0;
 }
 
-void update_cursor(int x, int y)
+void better_os::lib::update_cursor(int x, int y)
 {
     uint16_t pos = y * 80 + x;
     outb(0x3D4, 0x0F);
@@ -33,7 +33,7 @@ void update_cursor(int x, int y)
     outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
 }
 
-void putchar(char ch)
+void better_os::lib::putchar(char ch)
 {
     switch (ch)
     {
@@ -85,7 +85,7 @@ void putchar(char ch)
     update_cursor(col, row);
 }
 
-void printf(const char *str)
+void better_os::lib::printf(const char *str)
 {
     for (uint32_t i = 0; str[i] != '\0'; i++)
     {
@@ -93,14 +93,14 @@ void printf(const char *str)
     }
 }
 
-void printd(uint8_t integer)
+void better_os::lib::printd(uint8_t integer)
 {
     if (integer > 9)
         printd(integer / 10);
     putchar('0' + (integer % 10));
 }
 
-void printhex(uint8_t integer)
+void better_os::lib::printhex(uint8_t integer)
 {
     char *msg = "0x00";
     char *hex = "0123456789ABCDEF";
