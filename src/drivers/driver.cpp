@@ -1,5 +1,4 @@
-#include "headers/driver.hpp"
-#include "headers/stdlib.hpp"
+#include "all.hpp"
 
 Driver::Driver(char *name) : name(name) {
                              };

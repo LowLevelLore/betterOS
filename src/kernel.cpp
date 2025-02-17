@@ -1,10 +1,4 @@
-#include "src/headers/types.hpp"
-#include "src/headers/interrupts.hpp"
-#include "src/headers/gdt.hpp"
-#include "src/headers/keyboard.hpp"
-#include "src/headers/mouse.hpp"
-#include "src/headers/stdlib.hpp"
-#include "src/headers/driver.hpp"
+#include "all.hpp"
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;

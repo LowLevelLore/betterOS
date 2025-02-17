@@ -1,4 +1,4 @@
-#include "headers/mouse.hpp"
+#include "all.hpp"
 
 MouseEventHandler::MouseEventHandler()
 {

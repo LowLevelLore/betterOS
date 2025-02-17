@@ -1,9 +1,9 @@
 #ifndef __BETTER_OS_KEYBOARD_H
 #define __BETTER_OS_KEYBOARD_H
 
-#include "types.hpp"
-#include "interrupts.hpp"
-#include "port.hpp"
+#include "../lib/types.hpp"
+#include "../basics/interrupts.hpp"
+#include "../hardware/port.hpp"
 #include "driver.hpp"
 
 class KeyboardEventHandler

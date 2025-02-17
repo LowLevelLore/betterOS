@@ -1,7 +1,7 @@
 #ifndef __BETTER_OS_PORT_H
 #define __BETTER_OS_PORT_H
 
-#include "types.hpp"
+#include "../lib/types.hpp"
 
 class Port
 {

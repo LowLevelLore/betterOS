@@ -1,5 +1,4 @@
-#include "headers/interrupts.hpp"
-#include "headers/stdlib.hpp"
+#include "all.hpp"
 
 InterruptHandler::InterruptHandler(InterruptManager *interruptManager, uint8_t InterruptNumber)
 {
@@ -27,8 +26,8 @@ void InterruptManager::SetInterruptDescriptorTableEntry(uint8_t interrupt,
 {
     // address of pointer to code segment (relative to global descriptor table)
     // and address of the handler (relative to segment)
-    interruptDescriptorTable[interrupt].handlerAddressLowBits = ((uint32_t)handler) & 0xFFFF;
-    interruptDescriptorTable[interrupt].handlerAddressHighBits = (((uint32_t)handler) >> 16) & 0xFFFF;
+    interruptDescriptorTable[interrupt].handlerAddressLowBits = ((uint32_t)((uint64_t)handler & 0xFFFFFFFF)) & 0xFFFF;
+    interruptDescriptorTable[interrupt].handlerAddressHighBits = (((uint32_t)((uint64_t)handler & 0xFFFFFFFF)) >> 16) & 0xFFFF;
     interruptDescriptorTable[interrupt].gdt_codeSegmentSelector = CodeSegment;
 
     const uint8_t IDT_DESC_PRESENT = 0x80;
@@ -110,7 +109,7 @@ InterruptManager::InterruptManager(uint16_t hardwareInterruptOffset, GlobalDescr
 
     InterruptDescriptorTablePointer idt_pointer;
     idt_pointer.size = 256 * sizeof(GateDescriptor) - 1;
-    idt_pointer.base = (uint32_t)interruptDescriptorTable;
+    idt_pointer.base = (uint32_t)((uint64_t)interruptDescriptorTable & 0xFFFFFFFF);
     asm volatile("lidt %0" : : "m"(idt_pointer));
 }
 

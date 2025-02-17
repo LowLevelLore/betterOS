@@ -1,4 +1,4 @@
-#include "headers/stdlib.hpp"
+#include "all.hpp"
 
 void clear_screen()
 {

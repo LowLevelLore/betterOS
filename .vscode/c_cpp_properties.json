@@ -1,17 +1,36 @@
 {
   "configurations": [
     {
-      "name": "linux-gcc-x64",
+      "name": "linux-gcc-x86",
       "includePath": [
-        "${workspaceFolder}/**"
+        "${workspaceFolder}/include/**",
+        "${workspaceFolder}/include/basics",
+        "${workspaceFolder}/include/hardware",
+        "${workspaceFolder}/include/drivers",
+        "${workspaceFolder}/include/lib"
       ],
       "compilerPath": "/usr/bin/gcc",
       "cStandard": "c23",
       "cppStandard": "c++23",
-      "intelliSenseMode": "linux-gcc-x64",
+      "intelliSenseMode": "linux-gcc-x86",
       "compilerArgs": [
-         "-Wno-write-strings"
-      ]
+        "-m32",   // Ensure 32-bit compatibility
+        "-nostdlib",
+        "-fno-builtin",
+        "-fno-rtti",
+        "-fno-exceptions",
+        "-Wno-write-strings"
+      ],
+      "browse": {
+        "path": [
+          "${workspaceFolder}/include",
+          "${workspaceFolder}/include/basics",
+          "${workspaceFolder}/include/hardware",
+          "${workspaceFolder}/include/drivers",
+          "${workspaceFolder}/include/lib"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
     }
   ],
   "version": 4

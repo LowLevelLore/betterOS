@@ -1,7 +1,7 @@
 #ifndef __BETTER_OS_DRIVER_H
 #define __BETTER_OS_DRIVER_H
 
-#include "types.hpp"
+#include "../lib/types.hpp"
 
 #define MAX_DRIVERS 256
 

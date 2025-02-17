@@ -1,10 +1,9 @@
 {
-  "C_Cpp_Runner.cCompilerPath": "gcc",
-  "C_Cpp_Runner.cppCompilerPath": "g++",
+  "C_Cpp_Runner.cCompilerPath": "x86_64-elf-gcc",
+  "C_Cpp_Runner.cppCompilerPath": "x86_64-elf-g++",
   "C_Cpp_Runner.debuggerPath": "gdb",
   "C_Cpp_Runner.cStandard": "c23",
   "C_Cpp_Runner.cppStandard": "c++23",
-  "C_Cpp_Runner.msvcBatchPath": "",
   "C_Cpp_Runner.useMsvc": false,
   "C_Cpp_Runner.warnings": [
     "-Wall",
@@ -17,6 +16,48 @@
     "-Wsign-conversion",
     "-Wnull-dereference"
   ],
+  "C_Cpp_Runner.enableWarnings": true,
+  "C_Cpp_Runner.warningsAsError": false,
+  "C_Cpp_Runner.compilerArgs": [
+    "-m32",
+    "-nostdlib",
+    "-fno-builtin",
+    "-fno-rtti",
+    "-fno-exceptions",
+    "-fno-stack-protector",
+    "-ffreestanding",
+    "-Wno-write-strings"
+  ],
+  "C_Cpp_Runner.linkerArgs": [
+    "-melf_i386"
+  ],
+  "C_Cpp_Runner.includePaths": [
+    "include",
+    "include/basics",
+    "include/hardware",
+    "include/drivers",
+    "include/lib"
+  ],
+  "C_Cpp_Runner.includeSearch": [
+    "*",
+    "**/*",
+    "include",
+    "include/basics",
+    "include/hardware",
+    "include/drivers",
+    "include/lib"
+  ],
+  "C_Cpp_Runner.excludeSearch": [
+    "**/build",
+    "**/build/**",
+    "**/.*",
+    "**/.*/**",
+    "**/.vscode",
+    "**/.vscode/**"
+  ],
+  "C_Cpp_Runner.showCompilationTime": false,
+  "C_Cpp_Runner.useLinkTimeOptimization": false,
+  "C_Cpp_Runner.msvcBatchPath": "",
   "C_Cpp_Runner.msvcWarnings": [
     "/W4",
     "/permissive-",
@@ -33,32 +74,8 @@
     "/w44265",
     "/w14928"
   ],
-  "C_Cpp_Runner.enableWarnings": true,
-  "C_Cpp_Runner.warningsAsError": false,
-  "C_Cpp_Runner.compilerArgs": [],
-  "C_Cpp_Runner.linkerArgs": [],
-  "C_Cpp_Runner.includePaths": [],
-  "C_Cpp_Runner.includeSearch": [
-    "*",
-    "**/*"
-  ],
-  "C_Cpp_Runner.excludeSearch": [
-    "**/build",
-    "**/build/**",
-    "**/.*",
-    "**/.*/**",
-    "**/.vscode",
-    "**/.vscode/**"
-  ],
   "C_Cpp_Runner.useAddressSanitizer": false,
   "C_Cpp_Runner.useUndefinedSanitizer": false,
   "C_Cpp_Runner.useLeakSanitizer": false,
-  "C_Cpp_Runner.showCompilationTime": false,
-  "C_Cpp_Runner.useLinkTimeOptimization": false,
-  "C_Cpp_Runner.msvcSecureNoWarnings": false,
-  "files.associations": {
-    "*.h": "cpp",
-    "ratio": "cpp",
-    "format": "cpp"
-  }
+  "C_Cpp_Runner.msvcSecureNoWarnings": false
 }

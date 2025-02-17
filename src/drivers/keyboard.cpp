@@ -1,5 +1,4 @@
-#include "headers/keyboard.hpp"
-#include "headers/stdlib.hpp"
+#include "all.hpp"
 
 KeyboardEventHandler::KeyboardEventHandler()
 {

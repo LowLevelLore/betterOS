@@ -1,10 +1,9 @@
 #ifndef __BETTER_OS_MOUSE_H
 #define __BETTER_OS_MOUSE_H
 
-#include "types.hpp"
-#include "interrupts.hpp"
-#include "port.hpp"
-#include "stdlib.hpp"
+#include "../lib/types.hpp"
+#include "../basics/interrupts.hpp"
+#include "../hardware/port.hpp"
 #include "driver.hpp"
 
 class MouseEventHandler

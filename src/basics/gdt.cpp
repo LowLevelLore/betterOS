@@ -1,5 +1,5 @@
 
-#include "headers/gdt.hpp"
+#include "all.hpp"
 
 GlobalDescriptorTable::GlobalDescriptorTable()
     : nullSegmentSelector(0, 0, 0),
@@ -8,7 +8,7 @@ GlobalDescriptorTable::GlobalDescriptorTable()
       dataSegmentSelector(0, 64 * 1024 * 1024, 0x92)
 {
   uint32_t i[2];
-  i[1] = (uint32_t)this;
+  i[1] = (uint32_t)((uint64_t)this & 0xFFFFFFFF);
   i[0] = sizeof(GlobalDescriptorTable) << 16;
   asm volatile("lgdt (%0)" : : "p"(((uint8_t *)i) + 2));
 }

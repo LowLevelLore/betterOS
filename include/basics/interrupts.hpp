@@ -1,9 +1,9 @@
 #ifndef __BETTER_OS_INTERRUPTS_H
 #define __BETTER_OS_INTERRUPTS_H
 
+#include "../lib/types.hpp"
 #include "gdt.hpp"
-#include "types.hpp"
-#include "port.hpp"
+#include "../hardware/port.hpp"
 
 class InterruptManager;
 
