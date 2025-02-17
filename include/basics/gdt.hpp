@@ -3,37 +3,43 @@
 
 #include "../lib/types.hpp"
 
-class GlobalDescriptorTable
+namespace better_os
 {
-public:
-  class SegmentDescriptor
+  namespace basics
   {
-  private:
-    uint16_t limit_lo;
-    uint16_t base_lo;
-    uint8_t base_hi;
-    uint8_t type;
-    uint8_t limit_hi;
-    uint8_t base_vhi;
+    class GlobalDescriptorTable
+    {
+    public:
+      class SegmentDescriptor
+      {
+      private:
+        better_os::lib::uint16_t limit_lo;
+        better_os::lib::uint16_t base_lo;
+        better_os::lib::uint8_t base_hi;
+        better_os::lib::uint8_t type;
+        better_os::lib::uint8_t limit_hi;
+        better_os::lib::uint8_t base_vhi;
 
-  public:
-    SegmentDescriptor(uint32_t base, uint32_t limit, uint8_t type);
-    uint32_t Base();
-    uint32_t Limit();
-  } __attribute__((packed));
+      public:
+        SegmentDescriptor(better_os::lib::uint32_t base, better_os::lib::uint32_t limit, better_os::lib::uint8_t type);
+        better_os::lib::uint32_t Base();
+        better_os::lib::uint32_t Limit();
+      } __attribute__((packed));
 
-private:
-  SegmentDescriptor nullSegmentSelector;
-  SegmentDescriptor unusedSegmentSelector;
-  SegmentDescriptor codeSegmentSelector;
-  SegmentDescriptor dataSegmentSelector;
+    private:
+      SegmentDescriptor nullSegmentSelector;
+      SegmentDescriptor unusedSegmentSelector;
+      SegmentDescriptor codeSegmentSelector;
+      SegmentDescriptor dataSegmentSelector;
 
-public:
-  GlobalDescriptorTable();
-  ~GlobalDescriptorTable();
+    public:
+      GlobalDescriptorTable();
+      ~GlobalDescriptorTable();
 
-  uint16_t CodeSegmentSelector();
-  uint16_t DataSegmentSelector();
-};
+      better_os::lib::uint16_t CodeSegmentSelector();
+      better_os::lib::uint16_t DataSegmentSelector();
+    };
+  }
+}
 
 #endif // !__BETTER_OS_GDT_H

@@ -1,30 +1,32 @@
 #include "all.hpp"
 
-MouseEventHandler::MouseEventHandler()
+using namespace better_os::lib;
+
+better_os::drivers::MouseEventHandler::MouseEventHandler()
 {
     x = 0;
     y = 0;
 };
-MouseEventHandler::~MouseEventHandler() {};
-void MouseEventHandler::OnMouseDown(uint8_t button) {};
-void MouseEventHandler::OnMouseUp(uint8_t button) {};
-void MouseEventHandler::OnMouseMove(int32_t deltaX, int32_t deltaY) {};
+better_os::drivers::MouseEventHandler::~MouseEventHandler() {};
+void better_os::drivers::MouseEventHandler::OnMouseDown(uint8_t button) {};
+void better_os::drivers::MouseEventHandler::OnMouseUp(uint8_t button) {};
+void better_os::drivers::MouseEventHandler::OnMouseMove(int32_t deltaX, int32_t deltaY) {};
 
-VGAMouseEventHandler::VGAMouseEventHandler()
+better_os::drivers::VGAMouseEventHandler::VGAMouseEventHandler()
 {
     x = 0;
     y = 0;
     vga_base[MAX_COLS * y + x] = ((vga_base[MAX_COLS * y + x] & 0x0F00) << 4) | ((vga_base[MAX_COLS * y + x] & 0xF000) >> 4) | ((vga_base[MAX_COLS * y + x] & 0x00FF));
 };
-VGAMouseEventHandler::~VGAMouseEventHandler() {};
+better_os::drivers::VGAMouseEventHandler::~VGAMouseEventHandler() {};
 
-void VGAMouseEventHandler::OnMouseDown(uint8_t button) {
+void better_os::drivers::VGAMouseEventHandler::OnMouseDown(uint8_t button) {
     // printf("Mouse Down\t");
 };
-void VGAMouseEventHandler::OnMouseUp(uint8_t button) {
+void better_os::drivers::VGAMouseEventHandler::OnMouseUp(uint8_t button) {
     // printf("Mouse Up\t");
 };
-void VGAMouseEventHandler::OnMouseMove(int32_t deltaX, int32_t deltaY)
+void better_os::drivers::VGAMouseEventHandler::OnMouseMove(int32_t deltaX, int32_t deltaY)
 {
     vga_base[MAX_COLS * y + x] = ((vga_base[MAX_COLS * y + x] & 0x0F00) << 4) | ((vga_base[MAX_COLS * y + x] & 0xF000) >> 4) | ((vga_base[MAX_COLS * y + x] & 0x00FF));
     x += (deltaX);
@@ -40,7 +42,7 @@ void VGAMouseEventHandler::OnMouseMove(int32_t deltaX, int32_t deltaY)
     vga_base[MAX_COLS * y + x] = ((vga_base[MAX_COLS * y + x] & 0x0F00) << 4) | ((vga_base[MAX_COLS * y + x] & 0xF000) >> 4) | ((vga_base[MAX_COLS * y + x] & 0x00FF));
 };
 
-MouseDriver::MouseDriver(InterruptManager *manager, MouseEventHandler *handler)
+better_os::drivers::MouseDriver::MouseDriver(better_os::basics::InterruptManager *manager, MouseEventHandler *handler)
     : InterruptHandler(manager, 0x2C),
       Driver("xZist/mouse"),
       handler(handler),
@@ -49,11 +51,11 @@ MouseDriver::MouseDriver(InterruptManager *manager, MouseEventHandler *handler)
 {
 }
 
-MouseDriver::~MouseDriver()
+better_os::drivers::MouseDriver::~MouseDriver()
 {
 }
 
-void MouseDriver::Activate()
+void better_os::drivers::MouseDriver::Activate()
 {
     uint16_t *VideoMemory = (uint16_t *)0xb8000;
     offset = 0;
@@ -68,16 +70,16 @@ void MouseDriver::Activate()
     dataPort.Read();
 };
 
-void MouseDriver::DeActivate() {
+void better_os::drivers::MouseDriver::DeActivate() {
 
 };
 
-int32_t MouseDriver::Reset()
+int32_t better_os::drivers::MouseDriver::Reset()
 {
     return 0;
 };
 
-uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
+uint32_t better_os::drivers::MouseDriver::HandleInterrupt(uint32_t esp)
 {
     uint8_t status = commandPort.Read();
     if ((!(status & 0x20)) || !handler)

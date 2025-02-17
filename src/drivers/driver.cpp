@@ -1,32 +1,34 @@
 #include "all.hpp"
 
-Driver::Driver(char *name) : name(name) {
-                             };
+using namespace better_os::lib;
 
-Driver::~Driver() {
+better_os::drivers::Driver::Driver(char *name) : name(name) {
+                                                 };
+
+better_os::drivers::Driver::~Driver() {
 };
 
-DriverManager::DriverManager()
+better_os::drivers::DriverManager::DriverManager()
 {
     numDrivers = 0;
 }
 
-DriverManager::~DriverManager() {
+better_os::drivers::DriverManager::~DriverManager() {
 
 };
 
-void Driver::Activate()
+void better_os::drivers::Driver::Activate()
 {
 }
-int Driver::Reset()
+int better_os::drivers::Driver::Reset()
 {
     return 0;
 }
-void Driver::DeActivate()
+void better_os::drivers::Driver::DeActivate()
 {
 }
 
-bool DriverManager::AddDriver(Driver *driver)
+bool better_os::drivers::DriverManager::AddDriver(Driver *driver)
 {
     if (numDrivers < MAX_DRIVERS - 1)
     {
@@ -40,7 +42,7 @@ bool DriverManager::AddDriver(Driver *driver)
     return false;
 };
 
-bool DriverManager::RemoverDriver(Driver *driver)
+bool better_os::drivers::DriverManager::RemoverDriver(Driver *driver)
 {
     for (uint16_t i = 0; i < 256; i++)
     {

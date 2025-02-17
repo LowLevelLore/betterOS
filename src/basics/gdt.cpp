@@ -1,7 +1,9 @@
 
 #include "all.hpp"
 
-GlobalDescriptorTable::GlobalDescriptorTable()
+using namespace better_os::lib;
+
+better_os::basics::GlobalDescriptorTable::GlobalDescriptorTable()
     : nullSegmentSelector(0, 0, 0),
       unusedSegmentSelector(0, 0, 0),
       codeSegmentSelector(0, 64 * 1024 * 1024, 0x9A),
@@ -13,21 +15,21 @@ GlobalDescriptorTable::GlobalDescriptorTable()
   asm volatile("lgdt (%0)" : : "p"(((uint8_t *)i) + 2));
 }
 
-GlobalDescriptorTable::~GlobalDescriptorTable()
+better_os::basics::GlobalDescriptorTable::~GlobalDescriptorTable()
 {
 }
 
-uint16_t GlobalDescriptorTable::DataSegmentSelector()
+uint16_t better_os::basics::GlobalDescriptorTable::DataSegmentSelector()
 {
   return (uint8_t *)&dataSegmentSelector - (uint8_t *)this;
 }
 
-uint16_t GlobalDescriptorTable::CodeSegmentSelector()
+uint16_t better_os::basics::GlobalDescriptorTable::CodeSegmentSelector()
 {
   return (uint8_t *)&codeSegmentSelector - (uint8_t *)this;
 }
 
-GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint32_t limit, uint8_t type)
+better_os::basics::GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint32_t limit, uint8_t type)
 {
   uint8_t *target = (uint8_t *)this;
 
@@ -72,7 +74,7 @@ GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint3
   target[5] = type;
 }
 
-uint32_t GlobalDescriptorTable::SegmentDescriptor::Base()
+uint32_t better_os::basics::GlobalDescriptorTable::SegmentDescriptor::Base()
 {
   uint8_t *target = (uint8_t *)this;
 
@@ -84,7 +86,7 @@ uint32_t GlobalDescriptorTable::SegmentDescriptor::Base()
   return result;
 }
 
-uint32_t GlobalDescriptorTable::SegmentDescriptor::Limit()
+uint32_t better_os::basics::GlobalDescriptorTable::SegmentDescriptor::Limit()
 {
   uint8_t *target = (uint8_t *)this;
 

@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+
 make clean
 
 make betterKernel.iso
