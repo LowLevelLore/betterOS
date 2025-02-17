@@ -1,24 +1,23 @@
 
-GPPFLAGS = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore
+GPP = x86_64-elf-g++
+AS = x86_64-elf-as
+LD = x86_64-elf-ld
+GPPFLAGS = -m32 -fno-pic -fno-stack-protector -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -Wno-write-strings -Iinclude
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objects = loader.o kernel.o
+objects = build/loader.o build/basics/gdt.o build/hardware/port.o build/basics/interruptstubs.o build/basics/interrupts.o build/drivers/driver.o build/drivers/keyboard.o build/drivers/mouse.o build/lib/stdlib.o  build/kernel.o 
 
-kernel.o: kernel.cpp
-	@g++ $(GPPFLAGS) -m32 -o kernel.o -c kernel.cpp
+build/%.o: src/%.cpp structure
+	@$(GPP) $(GPPFLAGS) -o $@ -c $< 
 
-loader.o: loader.s
-	@as $(ASPARAMS) -o loader.o loader.s
+build/%.o: src/%.s structure
+	@$(AS) $(ASPARAMS) -o $@ $<
 
-betterKernel.bin: linker.ld $(objects)
-	@ld $(LDPARAMS) -T $< -o $@ $(objects)
+betterKernel.bin: linker.ld $(objects) structure
+	@$(LD) $(LDPARAMS) -T $< -o $@ $(objects)
 
-clean:
-	@rm -rf *.o *.bin *.iso iso/
-
-betterKernel.iso: betterKernel.bin
-	@mkdir -p build/
+betterKernel.iso: betterKernel.bin structure
 	@mkdir -p iso/
 	@mkdir -p iso/boot/
 	@mkdir -p iso/boot/grub/
@@ -31,8 +30,26 @@ betterKernel.iso: betterKernel.bin
 	@echo ' multiboot /boot/betterKernel.bin' >> iso/boot/grub/grub.cfg
 	@echo ' boot' >> iso/boot/grub/grub.cfg
 	@echo '}' >> iso/boot/grub/grub.cfg
-
-	@grub-mkrescue --output=build/$@ iso
-	@rm -rf iso *.o *.bin
+	@grub-mkrescue --output=build/betterKernel.iso iso
+	@rm -rf iso *.o *.bin build/*.o
 	@echo "We created an .iso file successfully, build/$@"
+
+.PHONY: clean
+clean:
+	@rm -rf *.o *.bin *.iso iso/
+	@rm -rf build
+
+commit:
+	@make clean
+	@git add .
+	@git commit -m "$(MSG)"
+	@git push -u master
+
+structure:
+	@mkdir -p build
+	@mkdir -p build/basics
+	@mkdir -p build/hardware
+	@mkdir -p build/drivers
+	@mkdir -p build/lib
+
 
