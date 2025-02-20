@@ -1,145 +1,124 @@
 #include "all.hpp"
 
 using namespace better_os::lib;
+using namespace better_os::drivers;
 
-better_os::drivers::KeyboardEventHandler::KeyboardEventHandler()
-{
+KeyboardEventHandler::KeyboardEventHandler() {
     shiftPressed = false;
     capsOn = false;
 };
-better_os::drivers::KeyboardEventHandler::~KeyboardEventHandler() {};
+KeyboardEventHandler::~KeyboardEventHandler() {};
 
-void better_os::drivers::KeyboardEventHandler::onKeyPress(uint8_t scanCode)
-{
+void KeyboardEventHandler::onKeyPress(uint8_t scanCode) {
     // Handle modifier state changes
-    switch (scanCode)
-    {
-    case 0x2A: // Left Shift
-    case 0x36: // Right Shift
-        shiftPressed = true;
-        break;
-    case 0x3A: // Caps Lock
-        capsOn = !capsOn;
-        break;
+    switch (scanCode) {
+        case 0x2A:  // Left Shift
+        case 0x36:  // Right Shift
+            shiftPressed = true;
+            break;
+        case 0x3A:  // Caps Lock
+            capsOn = !capsOn;
+            break;
     }
 }
 
-void better_os::drivers::KeyboardEventHandler::onKeyRelease(uint8_t scanCode)
-{
-    switch (scanCode)
-    {
-    case 0x2A: // Left Shift release
-    case 0x36: // Right Shift release
-        shiftPressed = false;
-        break;
+void KeyboardEventHandler::onKeyRelease(uint8_t scanCode) {
+    switch (scanCode) {
+        case 0x2A:  // Left Shift release
+        case 0x36:  // Right Shift release
+            shiftPressed = false;
+            break;
     }
 }
 
-better_os::drivers::VGAKeyboardEventHandler::VGAKeyboardEventHandler() {};
-better_os::drivers::VGAKeyboardEventHandler::~VGAKeyboardEventHandler() {};
+VGAKeyboardEventHandler::VGAKeyboardEventHandler() {};
+VGAKeyboardEventHandler::~VGAKeyboardEventHandler() {};
 
-void better_os::drivers::VGAKeyboardEventHandler::onKeyPress(uint8_t scanCode)
-{
+void VGAKeyboardEventHandler::onKeyPress(uint8_t scanCode) {
     KeyboardEventHandler::onKeyPress(scanCode);
 
     bool isExtended = scanCode & 0x80;
     uint8_t baseCode = scanCode & 0x7F;
 
     // Handle special keys first
-    switch (baseCode)
-    {
-    case 0x1C:
-        putchar('\n');
-        return; // Enter
-    case 0x0E:
-        putchar('\b');
-        return; // Backspace
-    case 0x39:
-        putchar(' ');
-        return; // Space
+    switch (baseCode) {
+        case 0x1C:
+            if (shiftPressed) {
+                clear_screen();
+                break;
+            }
+            putchar('\n');
+            return;  // Enter
+        case 0x0E:
+            putchar('\b');
+            return;  // Backspace
+        case 0x39:
+            putchar(' ');
+            return;  // Space
     }
 
-    if (baseCode < sizeof(keymap))
-    {
+    if (baseCode < sizeof(keymap)) {
         char ch = shiftPressed ? shiftedKeymap[baseCode] : keymap[baseCode];
-        if (isExtended)
-        {
-            switch (baseCode)
-            {
-            case 0x48:
-                ch = '^';
-                break; // Up
-            case 0x50:
-                ch = 'v';
-                break; // Down
-            case 0x4B:
-                ch = '<';
-                break; // Left
-            case 0x4D:
-                ch = '>';
-                break; // Right
+        if (isExtended) {
+            switch (baseCode) {
+                case 0x48:
+                    ch = '^';
+                    break;  // Up
+                case 0x50:
+                    ch = 'v';
+                    break;  // Down
+                case 0x4B:
+                    ch = '<';
+                    break;  // Left
+                case 0x4D:
+                    ch = '>';
+                    break;  // Right
             }
         }
 
         // Caps Lock logic
-        if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
-        {
+        if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
             bool effectiveShift = shiftPressed ^ capsOn;
             ch = effectiveShift ? shiftedKeymap[baseCode] : keymap[baseCode];
         }
 
-        if (ch != 0)
-        {
+        if (ch != 0) {
             putchar(ch);
         }
     }
 }
 
-void better_os::drivers::VGAKeyboardEventHandler::onKeyRelease(uint8_t scanCode)
-{
+void VGAKeyboardEventHandler::onKeyRelease(
+    uint8_t scanCode) {
     KeyboardEventHandler::onKeyRelease(scanCode);
 }
 
-better_os::drivers::KeyboardDriver::KeyboardDriver(better_os::basics::InterruptManager *manager, KeyboardEventHandler *handler)
-    : InterruptHandler(manager, 0x21),
-      Driver("xZist/keyboard"),
-      handler(handler),
-      dataPort(0x60),
-      commandPort(0x64)
-{
-}
+KeyboardDriver::KeyboardDriver(
+    better_os::basics::InterruptManager *manager, KeyboardEventHandler *handler)
+    : InterruptHandler(manager, 0x21), Driver("xZist/keyboard"), handler(handler), dataPort(0x60), commandPort(0x64) {}
 
-better_os::drivers::KeyboardDriver::~KeyboardDriver()
-{
-}
+KeyboardDriver::~KeyboardDriver() {}
 
-void better_os::drivers::KeyboardDriver::Activate()
-{
+void KeyboardDriver::Activate() {
     while (commandPort.Read() & 0x1)
         dataPort.Read();
-    commandPort.Write(0xAE); // activate interrupts
-    commandPort.Write(0x20); // command 0x20 = read controller command byte
+    commandPort.Write(0xAE);  // activate interrupts
+    commandPort.Write(0x20);  // command 0x20 = read controller command byte
     uint8_t status = (dataPort.Read() | 1) & ~0x10;
-    commandPort.Write(0x60); // command 0x60 = set controller command byte
+    commandPort.Write(0x60);  // command 0x60 = set controller command byte
     dataPort.Write(status);
     dataPort.Write(0xF4);
 }
 
-void better_os::drivers::KeyboardDriver::DeActivate() {
-};
+void KeyboardDriver::DeActivate() {};
 
-int32_t better_os::drivers::KeyboardDriver::Reset()
-{
-    return 0;
-};
+int32_t KeyboardDriver::Reset() { return 0; };
 
-uint32_t better_os::drivers::KeyboardDriver::HandleInterrupt(uint32_t esp)
-{
+uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp) {
     static bool extendedKey = false;
     uint8_t key = dataPort.Read();
 
-    if (key == 0xE0)
-    {
+    if (key == 0xE0) {
         extendedKey = true;
         return esp;
     }
@@ -147,23 +126,18 @@ uint32_t better_os::drivers::KeyboardDriver::HandleInterrupt(uint32_t esp)
     bool isKeyUp = (key & 0x80 || key == 0xAA || key == 0xB6);
     uint8_t makeCode = key & 0x7F;
 
-    if (extendedKey)
-    {
+    if (extendedKey) {
         // Handle extended key logic
         extendedKey = false;
-        if (!isKeyUp)
-        {
-            handler->onKeyPress(makeCode | 0x80); // Mark as extended
+        if (!isKeyUp) {
+            handler->onKeyPress(makeCode | 0x80);  // Mark as extended
         }
         return esp;
     }
 
-    if (isKeyUp)
-    {
+    if (isKeyUp) {
         handler->onKeyRelease(makeCode);
-    }
-    else
-    {
+    } else {
         handler->onKeyPress(makeCode);
     }
 

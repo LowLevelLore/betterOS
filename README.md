@@ -14,9 +14,9 @@ Let's get better
 
 ``vncviewer``
 
-##### `<b>`NOTE: `</b>` Make sure `<a herf="https://www.qemu.org/">`QEMU`</a>` and `<a herf="https://tigervnc.org/">`TigerVNC`</a>` are installed. This compilation was tested on Arch Linux, may not compile on Windows.
+##### `<b>`NOTE: `</b>` Make sure `<a herf="https://www.qemu.org/">`QEMU `</a>` and `<a herf="https://tigervnc.org/">`TigerVNC `</a>` are installed. This compilation was tested on Arch Linux, may not compile on Windows.
 
-After you type in `<b>`vncviewer`</b>`, you need to enter the address displayed on the first terminal.
+After you type in `<b>`vncviewer `</b>`, you need to enter the address displayed on the first terminal.
 
 ### Dependencies
 
@@ -32,4 +32,5 @@ After you type in `<b>`vncviewer`</b>`, you need to enter the address displayed 
 
 <ol>
     <li> <b>__stack_chk_fail_local</b> ERROR -> Add -fno-stack-protector in GCC Flags </li>
+    <li> <b>To view all qemu devices</b> -> qemu-system-x86_64 -device help </li>
 </ol>

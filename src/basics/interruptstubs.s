@@ -67,10 +67,10 @@ int_bottom:
     pushl %fs
     pushl %gs
 
-    #cld
-    #mov $0x10, %eax
-    #mov %eax, %eds
-    #mov %eax, %ees
+    # cld
+    # mov $0x10, %eax
+    # mov %eax, %eds
+    # mov %eax, %ees
 
     # C++ Handler
     pushl %esp
