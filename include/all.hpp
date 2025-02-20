@@ -10,11 +10,12 @@
 #include "drivers/keyboard.hpp"
 #include "drivers/mouse.hpp"
 
-// PORT
+// HARDWARE
+#include "hardware/pci.hpp"
 #include "hardware/port.hpp"
 
 // LIB
 #include "lib/stdlib.hpp"
 #include "lib/types.hpp"
 
-#endif // !__BETTER_OS_ALL_H
+#endif  // !__BETTER_OS_ALL_H

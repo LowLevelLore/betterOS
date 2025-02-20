@@ -83,6 +83,13 @@
     "cstdint": "cpp",
     "compare": "cpp",
     "chrono": "cpp",
-    "functional": "cpp"
-  }
+    "functional": "cpp",
+    "any": "cpp",
+    "optional": "cpp",
+    "utility": "cpp"
+  },
+  "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
+    "clang-diagnostic-writable-strings"
+  ],
+  "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}"
 }
