@@ -21,18 +21,31 @@ extern "C" void kernelMain(const void *multiboot_structure, uint32_t /*multiboot
     better_os::drivers::VGAMouseEventHandler mouseHandler;
     better_os::drivers::MouseDriver mouse(&interrupts, &mouseHandler);
     driverManager.AddDriver(&mouse);
+
     better_os::drivers::VGAKeyboardEventHandler keyboardHandler;
     better_os::drivers::KeyboardDriver keyboard(&interrupts, &keyboardHandler);
     driverManager.AddDriver(&keyboard);
 
     better_os::hardware::PeripheralComponentInterconnectController pciController;
     pciController.SelectDrivers(&driverManager, &interrupts);
-
     printf("All Drivers Initialized.\n");
 
-    interrupts.Activate();
+    better_os::drivers::VideoGraphicsArray_320x200x8 vgaHandler;
 
+    interrupts.Activate();
     printf("Interrupts Activated.\n\n");
+
+    for (int i = 0; i < 100; i++) {
+        printf("\n");
+    }
+
+    vgaHandler.SetMode();
+    for (uint32_t j = 0; j < 200; j++) {
+        for (uint32_t i = 0; i < 320; i++) {
+            vgaHandler.PutPixel(0, 0, 0x00, 0x00, 0xA8);
+        }
+    }
+
     printf("betterOS - boot successful\n\t\t\t\tBy: xZist\n===============================================================================\n\n");
 
     while (1);

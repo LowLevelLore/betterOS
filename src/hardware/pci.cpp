@@ -69,7 +69,6 @@ BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressReg
             case 2:  // 64 Bit Mode
                 break;
         }
-
     } else  // InputOutput
     {
         result.address = (uint8_t*)(bar_value & ~0x3);
@@ -146,6 +145,7 @@ void PeripheralComponentInterconnectController::SelectDrivers(better_os::drivers
                 printhex_base((deviceDescriptor.device_id & 0xFF00) >> 8);
                 printhex_base(deviceDescriptor.device_id & 0xFF);
                 printf(".\n");
+                printf("\n");
             }
         }
     }

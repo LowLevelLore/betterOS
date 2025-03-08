@@ -9,6 +9,7 @@
 #include "drivers/driver.hpp"
 #include "drivers/keyboard.hpp"
 #include "drivers/mouse.hpp"
+#include "drivers/vga.hpp"
 
 // HARDWARE
 #include "hardware/pci.hpp"
