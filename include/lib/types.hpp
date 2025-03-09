@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_TYPES_H
-#define __BETTER_OS_TYPES_H
+#ifndef __BETTER_OS_LIB_TYPES_H
+#define __BETTER_OS_LIB_TYPES_H
 
 namespace better_os {
 namespace lib {
@@ -17,4 +17,4 @@ typedef unsigned long long int uint64_t;
 }  // namespace lib
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_TYPES_H
+#endif  // !__BETTER_OS_LIB_TYPES_H

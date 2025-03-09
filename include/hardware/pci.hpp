@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_PCI_H
-#define __BETTER_OS_PCI_H
+#ifndef __BETTER_OS_HARDWARE_PCI_H
+#define __BETTER_OS_HARDWARE_PCI_H
 
 namespace better_os {
 namespace hardware {
@@ -59,4 +59,4 @@ class PeripheralComponentInterconnectController {
 }  // namespace hardware
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_PCI_H
+#endif  // !__BETTER_OS_HARDWARE_PCI_H

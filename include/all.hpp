@@ -19,4 +19,9 @@
 #include "lib/stdlib.hpp"
 #include "lib/types.hpp"
 
+// GUI
+#include "gui/desktop.hpp"
+#include "gui/widget.hpp"
+#include "gui/window.hpp"
+
 #endif  // !__BETTER_OS_ALL_H

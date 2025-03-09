@@ -1,4 +1,3 @@
-
 GPP = x86_64-elf-g++
 AS = x86_64-elf-as
 LD = x86_64-elf-ld

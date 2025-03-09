@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_MOUSE_H
-#define __BETTER_OS_MOUSE_H
+#ifndef __BETTER_OS_DRIVERS_MOUSE_H
+#define __BETTER_OS_DRIVERS_MOUSE_H
 
 #include "../basics/interrupts.hpp"
 #include "../hardware/port.hpp"
@@ -50,4 +50,4 @@ class MouseDriver : public better_os::basics::InterruptHandler, public Driver {
 }  // namespace drivers
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_MOUSE_H
+#endif  // !__BETTER_OS_DRIVERS_MOUSE_H

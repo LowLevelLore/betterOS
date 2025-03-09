@@ -124,6 +124,14 @@ void VideoGraphicsArray_320x200x8::SetMode() {
 
 VideoGraphicsArray_320x200x8::~VideoGraphicsArray_320x200x8() {};
 
+void VideoGraphicsArray_320x200x8::FillRectangle(better_os::lib::uint32_t x, better_os::lib::uint32_t y, better_os::lib::uint32_t w, better_os::lib::uint32_t h, better_os::lib::uint8_t r, better_os::lib::uint8_t g, better_os::lib::uint8_t b) {
+    for (uint32_t j = y; j < y + h; j++) {
+        for (uint32_t i = x; i < x + w; i++) {
+            PutPixel(i, j, r, g, b);
+        }
+    }
+};
+
 void VideoGraphicsArray_320x200x8::PutPixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b) {
     PutPixelUsingIndex(x, y, GetColorIndex(r, g, b));
 };

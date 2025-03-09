@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_VGA_H
-#define __BETTER_OS_VGA_H
+#ifndef __BETTER_OS_DRIVERS_VGA_H
+#define __BETTER_OS_DRIVERS_VGA_H
 
 #include "../basics/interrupts.hpp"
 #include "../drivers/driver.hpp"
@@ -38,8 +38,9 @@ class VideoGraphicsArray_320x200x8 {
     void SetMode();
 
     virtual void PutPixel(better_os::lib::uint32_t x, better_os::lib::uint32_t y, better_os::lib::uint8_t r, better_os::lib::uint8_t g, better_os::lib::uint8_t b);
+    virtual void FillRectangle(better_os::lib::uint32_t x, better_os::lib::uint32_t y, better_os::lib::uint32_t w, better_os::lib::uint32_t h, better_os::lib::uint8_t r, better_os::lib::uint8_t g, better_os::lib::uint8_t b);
 };
 }  // namespace drivers
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_VGA_H
+#endif  // !__BETTER_OS_DRIVERS_VGA_H

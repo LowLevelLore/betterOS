@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_STDLIB_H
-#define __BETTER_OS_STDLIB_H
+#ifndef __BETTER_OS_LIB_STDLIB_H
+#define __BETTER_OS_LIB_STDLIB_H
 
 #include "types.hpp"
 
@@ -33,4 +33,4 @@ static inline void outb(unsigned short int port, unsigned char value) {
 
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_STDLIB_H
+#endif  // !__BETTER_OS_LIB_STDLIB_H

@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_KEYBOARD_H
-#define __BETTER_OS_KEYBOARD_H
+#ifndef __BETTER_OS_DRIVERS_KEYBOARD_H
+#define __BETTER_OS_DRIVERS_KEYBOARD_H
 
 #include "../basics/interrupts.hpp"
 #include "../hardware/port.hpp"
@@ -67,4 +67,4 @@ class KeyboardDriver : public better_os::basics::InterruptHandler, public Driver
 }  // namespace drivers
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_KEYBOARD_H
+#endif  // !__BETTER_OS_DRIVERS_KEYBOARD_H

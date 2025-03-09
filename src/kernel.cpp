@@ -40,11 +40,7 @@ extern "C" void kernelMain(const void *multiboot_structure, uint32_t /*multiboot
     }
 
     vgaHandler.SetMode();
-    for (uint32_t j = 0; j < 200; j++) {
-        for (uint32_t i = 0; i < 320; i++) {
-            vgaHandler.PutPixel(0, 0, 0x00, 0x00, 0xA8);
-        }
-    }
+    vgaHandler.FillRectangle(0, 0, 320, 200, 0x00, 0x00, 0xA8);
 
     printf("betterOS - boot successful\n\t\t\t\tBy: xZist\n===============================================================================\n\n");
 

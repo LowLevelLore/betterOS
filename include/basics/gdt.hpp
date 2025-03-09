@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_GDT_H
-#define __BETTER_OS_GDT_H
+#ifndef __BETTER_OS_BASICS_GDT_H
+#define __BETTER_OS_BASICS_GDT_H
 
 #include "../lib/types.hpp"
 
@@ -38,4 +38,4 @@ class GlobalDescriptorTable {
 }  // namespace basics
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_GDT_H
+#endif  // !__BETTER_OS_BASICS_GDT_H

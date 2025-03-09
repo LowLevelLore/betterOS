@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_DRIVER_H
-#define __BETTER_OS_DRIVER_H
+#ifndef __BETTER_OS_DRIVERS_DRIVER_H
+#define __BETTER_OS_DRIVERS_DRIVER_H
 
 #include "../lib/types.hpp"
 
@@ -32,4 +32,4 @@ class DriverManager {
 }  // namespace drivers
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_DRIVER_H
+#endif  // !__BETTER_OS_DRIVERS_DRIVER_H

@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_INTERRUPTS_H
-#define __BETTER_OS_INTERRUPTS_H
+#ifndef __BETTER_OS_BASICS_INTERRUPTS_H
+#define __BETTER_OS_BASICS_INTERRUPTS_H
 
 #include "../hardware/port.hpp"
 #include "../lib/types.hpp"
@@ -106,4 +106,4 @@ class InterruptManager {
 }  // namespace basics
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_INTERRUPTS_H
+#endif  // !__BETTER_OS_BASICS_INTERRUPTS_H

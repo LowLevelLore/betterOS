@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_PORT_H
-#define __BETTER_OS_PORT_H
+#ifndef __BETTER_OS_HARDWARE_PORT_H
+#define __BETTER_OS_HARDWARE_PORT_H
 
 #include "../lib/types.hpp"
 
@@ -88,4 +88,4 @@ class Port32Bit : public Port {
 }  // namespace hardware
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_PORT_H
+#endif  // !__BETTER_OS_HARDWARE_PORT_H
