@@ -3,33 +3,33 @@
 using namespace better_os::hardware;
 using namespace better_os::lib;
 
-BaseAddressRegister::BaseAddressRegister() {};
-BaseAddressRegister::~BaseAddressRegister() {};
+BaseAddressRegister::BaseAddressRegister() {}
+BaseAddressRegister::~BaseAddressRegister() {}
 
-PeripheralComponentInterconnectDeviceDescriptor::PeripheralComponentInterconnectDeviceDescriptor() {};
-PeripheralComponentInterconnectDeviceDescriptor::~PeripheralComponentInterconnectDeviceDescriptor() {};
+PeripheralComponentInterconnectDeviceDescriptor::PeripheralComponentInterconnectDeviceDescriptor() {}
+PeripheralComponentInterconnectDeviceDescriptor::~PeripheralComponentInterconnectDeviceDescriptor() {}
 
-PeripheralComponentInterconnectController::PeripheralComponentInterconnectController() : dataPort(0xCFC), commandPort(0xCF8) {};
-PeripheralComponentInterconnectController::~PeripheralComponentInterconnectController() {};
+PeripheralComponentInterconnectController::PeripheralComponentInterconnectController()
+    : m_dataPort(0xCFC), m_commandPort(0xCF8) {}
+
+PeripheralComponentInterconnectController::~PeripheralComponentInterconnectController() {}
 
 uint32_t PeripheralComponentInterconnectController::Read(uint16_t bus, uint16_t device, uint16_t function, uint32_t registerOffset) {
-    uint32_t id =
-        0x1 << 31 | ((bus & 0xFF) << 16) | ((device & 0x1F) << 11) | ((function & 0x07) << 8) | (registerOffset & 0xFC);
-    commandPort.Write(id);
-    uint32_t result = dataPort.Read();
+    uint32_t id = (1u << 31) | ((bus & 0xFF) << 16) | ((device & 0x1F) << 11) | ((function & 0x07) << 8) | (registerOffset & 0xFC);
+    m_commandPort.Write(id);
+    uint32_t result = m_dataPort.Read();
     return result >> (8 * (registerOffset % 4));
-};
+}
 
 void PeripheralComponentInterconnectController::Write(uint16_t bus, uint16_t device, uint16_t function, uint32_t registerOffset, uint32_t value) {
-    uint32_t id =
-        0x1 << 31 | ((bus & 0xFF) << 16) | ((device & 0x1F) << 11) | ((function & 0x07) << 8) | (registerOffset & 0xFC);
-    commandPort.Write(id);
-    dataPort.Write(value);
-};
+    uint32_t id = (1u << 31) | ((bus & 0xFF) << 16) | ((device & 0x1F) << 11) | ((function & 0x07) << 8) | (registerOffset & 0xFC);
+    m_commandPort.Write(id);
+    m_dataPort.Write(value);
+}
 
 bool PeripheralComponentInterconnectController::HasFunctions(uint16_t bus, uint16_t device) {
     return Read(bus, device, 0, 0x0E) & (1 << 7);
-};
+}
 
 PeripheralComponentInterconnectDeviceDescriptor PeripheralComponentInterconnectController::GetDeviceDescriptor(uint16_t bus, uint16_t device, uint16_t function) {
     PeripheralComponentInterconnectDeviceDescriptor result;
@@ -48,9 +48,9 @@ PeripheralComponentInterconnectDeviceDescriptor PeripheralComponentInterconnectC
     result.interrupt = Read(bus, device, function, 0x3C);
 
     return result;
-};
+}
 
-BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressRegister(better_os::lib::uint16_t bus, better_os::lib::uint16_t device, better_os::lib::uint16_t function, better_os::lib::uint16_t bar) {
+BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressRegister(uint16_t bus, uint16_t device, uint16_t function, uint16_t bar) {
     BaseAddressRegister result;
 
     uint32_t headertype = Read(bus, device, function, 0x0E) & 0x7F;
@@ -60,7 +60,6 @@ BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressReg
 
     uint32_t bar_value = Read(bus, device, function, 0x10 + 4 * bar);
     result.type = (bar_value & 0x1) ? InputOutput : MemoryMapping;
-    uint32_t temp;
 
     if (result.type == MemoryMapping) {
         switch ((bar_value >> 1) & 0x3) {
@@ -69,14 +68,13 @@ BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressReg
             case 2:  // 64 Bit Mode
                 break;
         }
-    } else  // InputOutput
-    {
+    } else {  // InputOutput
         result.address = (uint8_t*)(bar_value & ~0x3);
         result.prefetchable = false;
     }
 
     return result;
-};
+}
 
 void PeripheralComponentInterconnectController::SelectDrivers(better_os::drivers::DriverManager* driverManager, better_os::basics::InterruptManager* interruptManager) {
     for (uint8_t bus = 0; bus < 8; bus++) {
@@ -85,7 +83,7 @@ void PeripheralComponentInterconnectController::SelectDrivers(better_os::drivers
             for (uint8_t function = 0; function < numFunctions; function++) {
                 PeripheralComponentInterconnectDeviceDescriptor deviceDescriptor = GetDeviceDescriptor(bus, device, function);
 
-                if (deviceDescriptor.vendor_id == 0x0000 or deviceDescriptor.vendor_id == 0xFFFF) {
+                if (deviceDescriptor.vendor_id == 0x0000 || deviceDescriptor.vendor_id == 0xFFFF) {
                     continue;
                 }
 
@@ -149,4 +147,4 @@ void PeripheralComponentInterconnectController::SelectDrivers(better_os::drivers
             }
         }
     }
-};
+}

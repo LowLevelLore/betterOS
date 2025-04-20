@@ -6,8 +6,9 @@ using namespace better_os::drivers;
 KeyboardEventHandler::KeyboardEventHandler() {
     shiftPressed = false;
     capsOn = false;
-};
-KeyboardEventHandler::~KeyboardEventHandler() {};
+}
+
+KeyboardEventHandler::~KeyboardEventHandler() {}
 
 void KeyboardEventHandler::onKeyPress(uint8_t scanCode) {
     // Handle modifier state changes
@@ -31,8 +32,8 @@ void KeyboardEventHandler::onKeyRelease(uint8_t scanCode) {
     }
 }
 
-VGAKeyboardEventHandler::VGAKeyboardEventHandler() {};
-VGAKeyboardEventHandler::~VGAKeyboardEventHandler() {};
+VGAKeyboardEventHandler::VGAKeyboardEventHandler() {}
+VGAKeyboardEventHandler::~VGAKeyboardEventHandler() {}
 
 void VGAKeyboardEventHandler::onKeyPress(uint8_t scanCode) {
     KeyboardEventHandler::onKeyPress(scanCode);
@@ -88,57 +89,62 @@ void VGAKeyboardEventHandler::onKeyPress(uint8_t scanCode) {
     }
 }
 
-void VGAKeyboardEventHandler::onKeyRelease(
-    uint8_t scanCode) {
+void VGAKeyboardEventHandler::onKeyRelease(uint8_t scanCode) {
     KeyboardEventHandler::onKeyRelease(scanCode);
 }
 
-KeyboardDriver::KeyboardDriver(
-    better_os::basics::InterruptManager *manager, KeyboardEventHandler *handler)
-    : InterruptHandler(manager, 0x21), Driver("xZist/keyboard"), handler(handler), dataPort(0x60), commandPort(0x64) {}
+KeyboardDriver::KeyboardDriver(better_os::basics::InterruptManager* manager, KeyboardEventHandler* handler)
+    : InterruptHandler(manager, 0x21),
+      Driver("xZist/keyboard"),
+      m_handler(handler),
+      m_dataPort(0x60),
+      m_commandPort(0x64) {}
 
 KeyboardDriver::~KeyboardDriver() {}
 
 void KeyboardDriver::Activate() {
-    while (commandPort.Read() & 0x1)
-        dataPort.Read();
-    commandPort.Write(0xAE);  // activate interrupts
-    commandPort.Write(0x20);  // command 0x20 = read controller command byte
-    uint8_t status = (dataPort.Read() | 1) & ~0x10;
-    commandPort.Write(0x60);  // command 0x60 = set controller command byte
-    dataPort.Write(status);
-    dataPort.Write(0xF4);
+    while (m_commandPort.Read() & 0x1)
+        m_dataPort.Read();
+    m_commandPort.Write(0xAE);  // activate interrupts
+    m_commandPort.Write(0x20);  // command 0x20 = read controller command byte
+    uint8_t status = (m_dataPort.Read() | 1) & ~0x10;
+    m_commandPort.Write(0x60);  // command 0x60 = set controller command byte
+    m_dataPort.Write(status);
+    m_dataPort.Write(0xF4);
 }
 
-void KeyboardDriver::DeActivate() {};
+void KeyboardDriver::DeActivate() {
+}
 
-int32_t KeyboardDriver::Reset() { return 0; };
+int32_t KeyboardDriver::Reset() {
+    return 0;
+}
 
 uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp) {
     static bool extendedKey = false;
-    uint8_t key = dataPort.Read();
+    uint8_t key = m_dataPort.Read();
 
     if (key == 0xE0) {
         extendedKey = true;
         return esp;
     }
 
-    bool isKeyUp = (key & 0x80 || key == 0xAA || key == 0xB6);
+    bool isKeyUp = (key & 0x80) || (key == 0xAA) || (key == 0xB6);
     uint8_t makeCode = key & 0x7F;
 
     if (extendedKey) {
         // Handle extended key logic
         extendedKey = false;
         if (!isKeyUp) {
-            handler->onKeyPress(makeCode | 0x80);  // Mark as extended
+            m_handler->onKeyPress(makeCode | 0x80);  // Mark as extended
         }
         return esp;
     }
 
     if (isKeyUp) {
-        handler->onKeyRelease(makeCode);
+        m_handler->onKeyRelease(makeCode);
     } else {
-        handler->onKeyPress(makeCode);
+        m_handler->onKeyPress(makeCode);
     }
 
     return esp;

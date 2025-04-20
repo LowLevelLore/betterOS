@@ -52,9 +52,10 @@ class VGAKeyboardEventHandler : public KeyboardEventHandler {
 };
 
 class KeyboardDriver : public better_os::basics::InterruptHandler, public Driver {
-    better_os::hardware::Port8Bit dataPort;
-    better_os::hardware::Port8Bit commandPort;
-    KeyboardEventHandler *handler;
+   private:
+    better_os::hardware::Port8Bit m_dataPort;
+    better_os::hardware::Port8Bit m_commandPort;
+    KeyboardEventHandler *m_handler;
 
    public:
     KeyboardDriver(better_os::basics::InterruptManager *manager, KeyboardEventHandler *handler);

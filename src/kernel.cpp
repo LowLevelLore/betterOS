@@ -3,46 +3,57 @@
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
+
 extern "C" void callConstructors() {
-    for (constructor *i = &start_ctors; i != &end_ctors; i++)
-        (*i)();
+    for (constructor* ctor = &start_ctors; ctor != &end_ctors; ++ctor) {
+        (*ctor)();
+    }
 }
 
 using namespace better_os::lib;
-extern "C" void kernelMain(const void *multiboot_structure, uint32_t /*multiboot_magic*/) {
-    better_os::basics::GlobalDescriptorTable gdt;
-    better_os::basics::InterruptManager interrupts(0x20, &gdt);
+
+extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot_magic*/) {
+    // Initialize global descriptor table and interrupt manager.
+    better_os::basics::GlobalDescriptorTable globalDescriptorTable;
+    better_os::basics::InterruptManager interruptManager(0x20, &globalDescriptorTable);
 
     printf("GDT and InterruptManager initialized.\n");
     printf("Initializing drivers.\n");
 
+    // Set up driver manager.
     better_os::drivers::DriverManager driverManager;
 
-    better_os::drivers::VGAMouseEventHandler mouseHandler;
-    better_os::drivers::MouseDriver mouse(&interrupts, &mouseHandler);
-    driverManager.AddDriver(&mouse);
+    // Initialize and register mouse driver.
+    better_os::drivers::VGAMouseEventHandler vgaMouseEventHandler;
+    better_os::drivers::MouseDriver mouseDriver(&interruptManager, &vgaMouseEventHandler);
+    driverManager.AddDriver(&mouseDriver);
 
-    better_os::drivers::VGAKeyboardEventHandler keyboardHandler;
-    better_os::drivers::KeyboardDriver keyboard(&interrupts, &keyboardHandler);
-    driverManager.AddDriver(&keyboard);
+    // Initialize and register keyboard driver.
+    better_os::drivers::VGAKeyboardEventHandler vgaKeyboardEventHandler;
+    better_os::drivers::KeyboardDriver keyboardDriver(&interruptManager, &vgaKeyboardEventHandler);
+    driverManager.AddDriver(&keyboardDriver);
 
+    // Initialize PCI controller and select drivers.
     better_os::hardware::PeripheralComponentInterconnectController pciController;
-    pciController.SelectDrivers(&driverManager, &interrupts);
+    pciController.SelectDrivers(&driverManager, &interruptManager);
     printf("All Drivers Initialized.\n");
 
-    better_os::drivers::VideoGraphicsArray_320x200x8 vgaHandler;
+    // // Set up VGA graphics.
+    // better_os::drivers::VideoGraphicsArray_320x200x8 vgaHandler;
 
-    interrupts.Activate();
+    // Activate interrupts.
+    interruptManager.Activate();
     printf("Interrupts Activated.\n\n");
-
-    for (int i = 0; i < 100; i++) {
-        printf("\n");
-    }
-
-    vgaHandler.SetMode();
-    vgaHandler.FillRectangle(0, 0, 320, 200, 0x00, 0x00, 0xA8);
-
     printf("betterOS - boot successful\n\t\t\t\tBy: xZist\n===============================================================================\n\n");
+
+    // // Clear the text screen area.
+    // for (int i = 0; i < 100; i++) {
+    //     printf("\n");
+    // }
+
+    // // Set the graphics mode and draw a rectangle.
+    // vgaHandler.SetMode();
+    // vgaHandler.FillRectangle(0, 0, 320, 200, 0x00, 0x00, 0xA8);
 
     while (1);
 }

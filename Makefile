@@ -7,7 +7,7 @@ LDPARAMS = -melf_i386
 
 objects = build/loader.o build/basics/gdt.o build/hardware/pci.o build/hardware/port.o build/basics/interruptstubs.o \
 			build/basics/interrupts.o build/drivers/driver.o build/drivers/vga.o build/drivers/keyboard.o \
-			build/drivers/mouse.o build/lib/stdlib.o  build/kernel.o 
+			build/drivers/mouse.o build/lib/stdlib.o  build/gui/widget.o build/gui/desktop.o build/gui/window.o build/kernel.o 
 
 build/%.o: src/%.cpp structure
 	@$(GPP) $(GPPFLAGS) -o $@ -c $< 
@@ -52,4 +52,5 @@ structure:
 	@mkdir -p build/hardware
 	@mkdir -p build/drivers
 	@mkdir -p build/lib
+	@mkdir -p build/gui
 

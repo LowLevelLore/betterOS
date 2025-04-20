@@ -1,6 +1,9 @@
 #include "all.hpp"
 
-void better_os::lib::clear_screen() {
+namespace better_os {
+namespace lib {
+
+void clear_screen() {
     for (int i = 0; i < MAX_ROWS * MAX_COLS; i++) {
         vga_base[i] = DEFAULT_CHARACTER;
     }
@@ -8,7 +11,7 @@ void better_os::lib::clear_screen() {
     col = 0;
 }
 
-void better_os::lib::scroll_screen() {
+void scroll_screen() {
     for (int i = 0; i < (MAX_ROWS - 1) * MAX_COLS; i++) {
         vga_base[i] = vga_base[i + MAX_COLS];
     }
@@ -19,15 +22,15 @@ void better_os::lib::scroll_screen() {
     col = 0;
 }
 
-void better_os::lib::update_cursor(int x, int y) {
-    uint16_t pos = y * 80 + x;
+void update_cursor(int x, int y) {
+    uint16_t pos = y * MAX_COLS + x;  // Using MAX_COLS for consistency.
     outb(0x3D4, 0x0F);
     outb(0x3D5, (uint8_t)(pos & 0xFF));
     outb(0x3D4, 0x0E);
     outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
 }
 
-void better_os::lib::putchar(char ch) {
+void putchar(char ch) {
     switch (ch) {
         case '\n':
             row++;
@@ -37,13 +40,13 @@ void better_os::lib::putchar(char ch) {
             col = (col + 4) & ~3;
             break;
         case '\b':
-            if (row == 0 and col == 0) {
+            if (row == 0 && col == 0) {
                 break;
             }
-            if (col > 0) {
+            if (col > 0) [[likely]] {
                 col--;
                 vga_base[row * MAX_COLS + col] = DEFAULT_CHARACTER;
-            } else {
+            } else [[unlikely]] {
                 row--;
                 col = MAX_COLS - 1;
                 while (vga_base[row * MAX_COLS + col] == DEFAULT_CHARACTER) {
@@ -72,28 +75,31 @@ void better_os::lib::putchar(char ch) {
     update_cursor(col, row);
 }
 
-void better_os::lib::printf(const char *str) {
+void printf(const char *str) {
     for (uint32_t i = 0; str[i] != '\0'; i++) {
         putchar(str[i]);
     }
 }
 
-void better_os::lib::printd(uint8_t integer) {
+void printd(uint8_t integer) {
     if (integer >= 10)
         printd(integer / 10);
     putchar('0' + (integer % 10));
 }
 
-void better_os::lib::printhex(uint8_t integer) {
+void printhex(uint8_t integer) {
     printf("0x");
     printhex_base(integer);
 }
 
-void better_os::lib::printhex_base(uint8_t integer) {
-    char msg[3];  // Writable stack-allocated buffer
-    char *hex = "0123456789ABCDEF";
+void printhex_base(uint8_t integer) {
+    char msg[3];  // Writable stack-allocated buffer.
+    const char *hex = "0123456789ABCDEF";
     msg[0] = hex[(integer >> 4) & 0xF];
     msg[1] = hex[integer & 0xF];
-    msg[2] = '\0';  // Null-terminate
+    msg[2] = '\0';  // Null-terminate.
     printf(msg);
 }
+
+}  // namespace lib
+}  // namespace better_os

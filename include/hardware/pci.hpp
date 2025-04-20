@@ -1,5 +1,17 @@
-#ifndef __BETTER_OS_HARDWARE_PCI_H
-#define __BETTER_OS_HARDWARE_PCI_H
+#ifndef BETTER_OS_HARDWARE_PCI_H
+#define BETTER_OS_HARDWARE_PCI_H
+
+#include "../hardware/port.hpp"
+#include "../lib/types.hpp"
+
+namespace better_os {
+namespace drivers {
+class DriverManager;
+}
+namespace basics {
+class InterruptManager;
+}
+}  // namespace better_os
 
 namespace better_os {
 namespace hardware {
@@ -43,20 +55,41 @@ class PeripheralComponentInterconnectDeviceDescriptor {
 
 class PeripheralComponentInterconnectController {
    private:
-    Port32Bit dataPort;
-    Port32Bit commandPort;
+    better_os::hardware::Port32Bit m_dataPort;
+    better_os::hardware::Port32Bit m_commandPort;
 
    public:
     PeripheralComponentInterconnectController();
     ~PeripheralComponentInterconnectController();
-    better_os::lib::uint32_t Read(better_os::lib::uint16_t bus, better_os::lib::uint16_t device, better_os::lib::uint16_t function, better_os::lib::uint32_t registeroffset);
-    void Write(better_os::lib::uint16_t bus, better_os::lib::uint16_t device, better_os::lib::uint16_t function, better_os::lib::uint32_t registeroffset, better_os::lib::uint32_t value);
-    bool HasFunctions(better_os::lib::uint16_t bus, better_os::lib::uint16_t device);
-    void SelectDrivers(better_os::drivers::DriverManager* driverManager, better_os::basics::InterruptManager* interruptManager);
-    PeripheralComponentInterconnectDeviceDescriptor GetDeviceDescriptor(better_os::lib::uint16_t bus, better_os::lib::uint16_t device, better_os::lib::uint16_t function);
-    BaseAddressRegister GetBaseAddressRegister(better_os::lib::uint16_t bus, better_os::lib::uint16_t device, better_os::lib::uint16_t function, better_os::lib::uint16_t bar);
+
+    better_os::lib::uint32_t Read(better_os::lib::uint16_t bus,
+                                  better_os::lib::uint16_t device,
+                                  better_os::lib::uint16_t function,
+                                  better_os::lib::uint32_t registeroffset);
+
+    void Write(better_os::lib::uint16_t bus,
+               better_os::lib::uint16_t device,
+               better_os::lib::uint16_t function,
+               better_os::lib::uint32_t registeroffset,
+               better_os::lib::uint32_t value);
+
+    bool HasFunctions(better_os::lib::uint16_t bus,
+                      better_os::lib::uint16_t device);
+
+    void SelectDrivers(better_os::drivers::DriverManager* driverManager,
+                       better_os::basics::InterruptManager* interruptManager);
+
+    PeripheralComponentInterconnectDeviceDescriptor GetDeviceDescriptor(better_os::lib::uint16_t bus,
+                                                                        better_os::lib::uint16_t device,
+                                                                        better_os::lib::uint16_t function);
+
+    BaseAddressRegister GetBaseAddressRegister(better_os::lib::uint16_t bus,
+                                               better_os::lib::uint16_t device,
+                                               better_os::lib::uint16_t function,
+                                               better_os::lib::uint16_t bar);
 };
+
 }  // namespace hardware
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_HARDWARE_PCI_H
+#endif  // BETTER_OS_HARDWARE_PCI_H

@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_DRIVERS_MOUSE_H
-#define __BETTER_OS_DRIVERS_MOUSE_H
+#ifndef BETTER_OS_DRIVERS_MOUSE_H
+#define BETTER_OS_DRIVERS_MOUSE_H
 
 #include "../basics/interrupts.hpp"
 #include "../hardware/port.hpp"
@@ -8,10 +8,11 @@
 
 namespace better_os {
 namespace drivers {
+
 class MouseEventHandler {
    protected:
-    better_os::lib::int8_t x;
-    better_os::lib::int8_t y;
+    better_os::lib::int8_t m_x;
+    better_os::lib::int8_t m_y;
 
    public:
     MouseEventHandler();
@@ -26,28 +27,32 @@ class VGAMouseEventHandler : public MouseEventHandler {
    public:
     VGAMouseEventHandler();
     ~VGAMouseEventHandler();
-    virtual void OnMouseDown(better_os::lib::uint8_t button);
-    virtual void OnMouseUp(better_os::lib::uint8_t button);
-    virtual void OnMouseMove(better_os::lib::int32_t deltaX, better_os::lib::int32_t deltaY);
+
+    virtual void OnMouseDown(better_os::lib::uint8_t button) override;
+    virtual void OnMouseUp(better_os::lib::uint8_t button) override;
+    virtual void OnMouseMove(better_os::lib::int32_t deltaX, better_os::lib::int32_t deltaY) override;
 };
 
 class MouseDriver : public better_os::basics::InterruptHandler, public Driver {
-    better_os::hardware::Port8Bit dataPort;
-    better_os::hardware::Port8Bit commandPort;
-    better_os::lib::uint8_t buffer[3];
-    better_os::lib::uint8_t offset;
-    better_os::lib::uint8_t buttons;
-    MouseEventHandler *handler;
+   private:
+    better_os::hardware::Port8Bit m_dataPort;
+    better_os::hardware::Port8Bit m_commandPort;
+    better_os::lib::uint8_t m_buffer[3];
+    better_os::lib::uint8_t m_offset;
+    better_os::lib::uint8_t m_buttons;
+    MouseEventHandler* m_handler;
 
    public:
-    MouseDriver(better_os::basics::InterruptManager *manager, MouseEventHandler *handler);
+    MouseDriver(better_os::basics::InterruptManager* manager, MouseEventHandler* handler);
     ~MouseDriver();
-    virtual better_os::lib::uint32_t HandleInterrupt(better_os::lib::uint32_t esp);
-    virtual void Activate();
-    virtual better_os::lib::int32_t Reset();
-    virtual void DeActivate();
+
+    virtual better_os::lib::uint32_t HandleInterrupt(better_os::lib::uint32_t esp) override;
+    virtual void Activate() override;
+    virtual better_os::lib::int32_t Reset() override;
+    virtual void Deactivate() override;
 };
+
 }  // namespace drivers
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_DRIVERS_MOUSE_H
+#endif  // BETTER_OS_DRIVERS_MOUSE_H

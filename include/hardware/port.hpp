@@ -1,21 +1,21 @@
-#ifndef __BETTER_OS_HARDWARE_PORT_H
-#define __BETTER_OS_HARDWARE_PORT_H
+#ifndef BETTER_OS_HARDWARE_PORT_H
+#define BETTER_OS_HARDWARE_PORT_H
 
 #include "../lib/types.hpp"
 
 namespace better_os {
 namespace hardware {
+
 class Port {
    protected:
-    Port(better_os::lib::uint16_t portnumber);
-    // FIXME: Must be virtual (currently isn't because the kernel has no memory management yet)
+    Port(better_os::lib::uint16_t portNumber);
     ~Port();
-    better_os::lib::uint16_t portnumber;
+    better_os::lib::uint16_t m_portNumber;
 };
 
 class Port8Bit : public Port {
    public:
-    Port8Bit(better_os::lib::uint16_t portnumber);
+    Port8Bit(better_os::lib::uint16_t portNumber);
     ~Port8Bit();
 
     virtual better_os::lib::uint8_t Read();
@@ -35,9 +35,8 @@ class Port8Bit : public Port {
 
 class Port8BitSlow : public Port8Bit {
    public:
-    Port8BitSlow(better_os::lib::uint16_t portnumber);
+    Port8BitSlow(better_os::lib::uint16_t portNumber);
     ~Port8BitSlow();
-
     virtual void Write(better_os::lib::uint8_t data);
 
    protected:
@@ -48,7 +47,7 @@ class Port8BitSlow : public Port8Bit {
 
 class Port16Bit : public Port {
    public:
-    Port16Bit(better_os::lib::uint16_t portnumber);
+    Port16Bit(better_os::lib::uint16_t portNumber);
     ~Port16Bit();
 
     virtual better_os::lib::uint16_t Read();
@@ -68,7 +67,7 @@ class Port16Bit : public Port {
 
 class Port32Bit : public Port {
    public:
-    Port32Bit(better_os::lib::uint16_t portnumber);
+    Port32Bit(better_os::lib::uint16_t portNumber);
     ~Port32Bit();
 
     virtual better_os::lib::uint32_t Read();
@@ -85,7 +84,8 @@ class Port32Bit : public Port {
         __asm__ volatile("outl %0, %1" : : "a"(_data), "Nd"(_port));
     }
 };
+
 }  // namespace hardware
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_HARDWARE_PORT_H
+#endif  // BETTER_OS_HARDWARE_PORT_H

@@ -1,20 +1,22 @@
-#ifndef __BETTER_OS_LIB_TYPES_H
-#define __BETTER_OS_LIB_TYPES_H
+#ifndef BETTER_OS_LIB_TYPES_H
+#define BETTER_OS_LIB_TYPES_H
 
 namespace better_os {
 namespace lib {
-typedef char int8_t;
-typedef unsigned char uint8_t;
 
-typedef short int16_t;
-typedef unsigned short uint16_t;
+using int8_t = char;
+using uint8_t = unsigned char;
 
-typedef int int32_t;
-typedef unsigned int uint32_t;
+using int16_t = short;
+using uint16_t = unsigned short;
 
-typedef long long int int64_t;
-typedef unsigned long long int uint64_t;
+using int32_t = int;
+using uint32_t = unsigned int;
+
+using int64_t = long long int;
+using uint64_t = unsigned long long int;
+
 }  // namespace lib
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_LIB_TYPES_H
+#endif  // BETTER_OS_LIB_TYPES_H

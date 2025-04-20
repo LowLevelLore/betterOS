@@ -1,5 +1,5 @@
-#ifndef __BETTER_OS_BASICS_INTERRUPTS_H
-#define __BETTER_OS_BASICS_INTERRUPTS_H
+#ifndef BETTER_OS_BASICS_INTERRUPTS_H
+#define BETTER_OS_BASICS_INTERRUPTS_H
 
 #include "../hardware/port.hpp"
 #include "../lib/types.hpp"
@@ -7,13 +7,14 @@
 
 namespace better_os {
 namespace basics {
+
 class InterruptManager;
 
 class InterruptHandler {
    protected:
-    better_os::lib::uint8_t InterruptNumber;
-    InterruptManager *interruptManager;
-    InterruptHandler(InterruptManager *interruptManager, better_os::lib::uint8_t InterruptNumber);
+    better_os::lib::uint8_t m_interruptNumber;
+    InterruptManager* m_interruptManager;
+    InterruptHandler(InterruptManager* interruptManager, better_os::lib::uint8_t interruptNumber);
     ~InterruptHandler();
 
    public:
@@ -24,8 +25,8 @@ class InterruptManager {
     friend class InterruptHandler;
 
    protected:
-    static InterruptManager *ActiveInterruptManager;
-    InterruptHandler *handlers[256];
+    static InterruptManager* s_activeInterruptManager;
+    InterruptHandler* m_handlers[256];
 
     struct GateDescriptor {
         better_os::lib::uint16_t handlerAddressLowBits;
@@ -35,17 +36,20 @@ class InterruptManager {
         better_os::lib::uint16_t handlerAddressHighBits;
     } __attribute__((packed));
 
-    static GateDescriptor interruptDescriptorTable[256];
+    static GateDescriptor s_interruptDescriptorTable[256];
 
     struct InterruptDescriptorTablePointer {
         better_os::lib::uint16_t size;
         better_os::lib::uint32_t base;
     } __attribute__((packed));
 
-    better_os::lib::uint16_t hardwareInterruptOffset;
+    better_os::lib::uint16_t m_hardwareInterruptOffset;
+
     static void SetInterruptDescriptorTableEntry(better_os::lib::uint8_t interrupt,
-                                                 better_os::lib::uint16_t codeSegmentSelectorOffset, void (*handler)(),
-                                                 better_os::lib::uint8_t DescriptorPrivilegeLevel, better_os::lib::uint8_t DescriptorType);
+                                                 better_os::lib::uint16_t codeSegmentSelectorOffset,
+                                                 void (*handler)(),
+                                                 better_os::lib::uint8_t DescriptorPrivilegeLevel,
+                                                 better_os::lib::uint8_t DescriptorType);
 
     static void InterruptIgnore();
 
@@ -91,19 +95,20 @@ class InterruptManager {
     static better_os::lib::uint32_t HandleInterrupt(better_os::lib::uint8_t interrupt, better_os::lib::uint32_t esp);
     better_os::lib::uint32_t DoHandleInterrupt(better_os::lib::uint8_t interrupt, better_os::lib::uint32_t esp);
 
-    better_os::hardware::Port8BitSlow programmableInterruptControllerMasterCommandPort;
-    better_os::hardware::Port8BitSlow programmableInterruptControllerMasterDataPort;
-    better_os::hardware::Port8BitSlow programmableInterruptControllerSlaveCommandPort;
-    better_os::hardware::Port8BitSlow programmableInterruptControllerSlaveDataPort;
+    better_os::hardware::Port8BitSlow m_programmableInterruptControllerMasterCommandPort;
+    better_os::hardware::Port8BitSlow m_programmableInterruptControllerMasterDataPort;
+    better_os::hardware::Port8BitSlow m_programmableInterruptControllerSlaveCommandPort;
+    better_os::hardware::Port8BitSlow m_programmableInterruptControllerSlaveDataPort;
 
    public:
-    InterruptManager(better_os::lib::uint16_t hardwareInterruptOffset, GlobalDescriptorTable *globalDescriptorTable);
+    InterruptManager(better_os::lib::uint16_t hardwareInterruptOffset, GlobalDescriptorTable* globalDescriptorTable);
     ~InterruptManager();
     better_os::lib::uint16_t HardwareInterruptOffset();
     void Activate();
     void Deactivate();
 };
+
 }  // namespace basics
 }  // namespace better_os
 
-#endif  // !__BETTER_OS_BASICS_INTERRUPTS_H
+#endif  // BETTER_OS_BASICS_INTERRUPTS_H
