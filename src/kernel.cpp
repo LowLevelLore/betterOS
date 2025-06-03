@@ -29,8 +29,13 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     better_os::basics::TaskManager taskManager;
     better_os::basics::Task task1(&globalDescriptorTable, taskA);
     better_os::basics::Task task2(&globalDescriptorTable, taskB);
-    taskManager.AddTask(&task1);
-    taskManager.AddTask(&task2);
+    // taskManager.AddTask(&task1);
+    // taskManager.AddTask(&task2);
+
+    uint32_t* memupper = (uint32_t*)(((size_t)((uint64_t)(multiboot_structure))) + 8);
+    size_t heap = 10 * 1024 * 1024;
+    better_os::basics::MemoryManager memoryManager(heap, (*memupper) * 1024 - heap - 10 * 1024);
+
     better_os::basics::InterruptManager interruptManager(0x20, &globalDescriptorTable, &taskManager);
 
     printf("GDT and InterruptManager initialized.\n");
@@ -66,6 +71,20 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     for (int i = 0; i < 100; i++) {
         printf("\n");
     }
+
+    printf("heap: 0x");
+    printhex((heap >> 24) & 0xFF);
+    printhex((heap >> 16) & 0xFF);
+    printhex((heap >> 8) & 0xFF);
+    printhex((heap) & 0xFF);
+
+    void* allocated = memoryManager.malloc(1024);
+    printf("\nallocated: 0x");
+    printhex(((uint64_t)allocated >> 24) & 0xFF);
+    printhex(((uint64_t)allocated >> 16) & 0xFF);
+    printhex(((uint64_t)allocated >> 8) & 0xFF);
+    printhex(((uint64_t)allocated) & 0xFF);
+    printf("\n");
 
     // Set the graphics mode and draw a rectangle.
     // vgaHandler.SetMode();

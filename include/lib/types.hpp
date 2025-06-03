@@ -16,6 +16,9 @@ using uint32_t = unsigned int;
 using int64_t = long long int;
 using uint64_t = unsigned long long int;
 
+typedef const char* string;
+typedef uint32_t size_t;
+
 }  // namespace lib
 }  // namespace better_os
 

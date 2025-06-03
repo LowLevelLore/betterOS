@@ -4,6 +4,7 @@
 // Basic system definitions and operations.
 #include "basics/gdt.hpp"
 #include "basics/interrupts.hpp"
+#include "basics/memorymangement.hpp"
 #include "basics/multitasking.hpp"
 
 // Device drivers.
