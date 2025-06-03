@@ -17,6 +17,7 @@ _ZN9better_os6basics16InterruptManager19HandleException\num\()Ev:
 .global _ZN9better_os6basics16InterruptManager26HandleInterruptRequest\num\()Ev
 _ZN9better_os6basics16InterruptManager26HandleInterruptRequest\num\()Ev:
     movb $\num + IRQ_BASE, (interruptnumber)
+    pushl $0
     jmp int_bottom
 .endm
 
@@ -61,29 +62,31 @@ HandleInterruptRequest 0x0F
 HandleInterruptRequest 0x31
 
 int_bottom:
-    pusha
-    pushl %ds
-    pushl %es
-    pushl %fs
-    pushl %gs
+    pushl %ebp
+    pushl %edi
+    pushl %esi
 
-    # cld
-    # mov $0x10, %eax
-    # mov %eax, %eds
-    # mov %eax, %ees
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
+    pushl %eax
 
-    # C++ Handler
+    # call C++ Handler
     pushl %esp
     push (interruptnumber)
     call _ZN9better_os6basics16InterruptManager15HandleInterruptEhj
-    add %esp, 6
-    mov %eax, %esp
+    mov %eax, %esp 
 
-    pop %gs
-    pop %fs
-    pop %es
-    pop %ds
-    popa
+    popl %eax
+    popl %ebx
+    popl %ecx
+    popl %edx
+
+    popl %esi
+    popl %edi
+    popl %ebp
+
+    add $4, %esp
 
 .global _ZN9better_os6basics16InterruptManager15InterruptIgnoreEv
 _ZN9better_os6basics16InterruptManager15InterruptIgnoreEv:

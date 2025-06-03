@@ -3,6 +3,7 @@
 
 #include "../hardware/port.hpp"
 #include "../lib/types.hpp"
+#include "./multitasking.hpp"
 #include "gdt.hpp"
 
 namespace better_os {
@@ -27,6 +28,7 @@ class InterruptManager {
    protected:
     static InterruptManager* s_activeInterruptManager;
     InterruptHandler* m_handlers[256];
+    TaskManager* m_taskManager;
 
     struct GateDescriptor {
         better_os::lib::uint16_t handlerAddressLowBits;
@@ -101,7 +103,7 @@ class InterruptManager {
     better_os::hardware::Port8BitSlow m_programmableInterruptControllerSlaveDataPort;
 
    public:
-    InterruptManager(better_os::lib::uint16_t hardwareInterruptOffset, GlobalDescriptorTable* globalDescriptorTable);
+    InterruptManager(better_os::lib::uint16_t hardwareInterruptOffset, GlobalDescriptorTable* globalDescriptorTable, TaskManager* taskManager);
     ~InterruptManager();
     better_os::lib::uint16_t HardwareInterruptOffset();
     void Activate();

@@ -10,12 +10,28 @@ extern "C" void callConstructors() {
     }
 }
 
+#define GRAPHICS_MODE
+
 using namespace better_os::lib;
+
+void taskA() {
+    while (true)
+        printf("A");
+}
+void taskB() {
+    while (true)
+        printf("B");
+}
 
 extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot_magic*/) {
     // Initialize global descriptor table and interrupt manager.
     better_os::basics::GlobalDescriptorTable globalDescriptorTable;
-    better_os::basics::InterruptManager interruptManager(0x20, &globalDescriptorTable);
+    better_os::basics::TaskManager taskManager;
+    better_os::basics::Task task1(&globalDescriptorTable, taskA);
+    better_os::basics::Task task2(&globalDescriptorTable, taskB);
+    taskManager.AddTask(&task1);
+    taskManager.AddTask(&task2);
+    better_os::basics::InterruptManager interruptManager(0x20, &globalDescriptorTable, &taskManager);
 
     printf("GDT and InterruptManager initialized.\n");
     printf("Initializing drivers.\n");
@@ -38,7 +54,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     pciController.SelectDrivers(&driverManager, &interruptManager);
     printf("All Drivers Initialized.\n");
 
-    // // Set up VGA graphics.
+    // Set up VGA graphics.
     // better_os::drivers::VideoGraphicsArray_320x200x8 vgaHandler;
 
     // Activate interrupts.
@@ -46,12 +62,12 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf("Interrupts Activated.\n\n");
     printf("betterOS - boot successful\n\t\t\t\tBy: xZist\n===============================================================================\n\n");
 
-    // // Clear the text screen area.
-    // for (int i = 0; i < 100; i++) {
-    //     printf("\n");
-    // }
+    // Clear the text screen area.
+    for (int i = 0; i < 100; i++) {
+        printf("\n");
+    }
 
-    // // Set the graphics mode and draw a rectangle.
+    // Set the graphics mode and draw a rectangle.
     // vgaHandler.SetMode();
     // vgaHandler.FillRectangle(0, 0, 320, 200, 0x00, 0x00, 0xA8);
 

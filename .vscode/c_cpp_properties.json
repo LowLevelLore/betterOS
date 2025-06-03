@@ -9,10 +9,10 @@
         "${workspaceFolder}/include/drivers",
         "${workspaceFolder}/include/lib"
       ],
-      "compilerPath": "/usr/bin/gcc",
+      "compilerPath": "/usr/bin/x86_64-elf-g++",
       "cStandard": "c23",
       "cppStandard": "c++23",
-      "intelliSenseMode": "linux-gcc-x86",
+      "intelliSenseMode": "gcc-x86",
       "compilerArgs": [
         "-m32",   // Ensure 32-bit compatibility
         "-nostdlib",

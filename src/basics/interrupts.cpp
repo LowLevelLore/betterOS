@@ -49,11 +49,12 @@ void InterruptManager::SetInterruptDescriptorTableEntry(
 // ---------------------------------------------------
 // InterruptManager Implementation
 // ---------------------------------------------------
-InterruptManager::InterruptManager(uint16_t hardwareInterruptOffset, GlobalDescriptorTable* globalDescriptorTable)
+InterruptManager::InterruptManager(uint16_t hardwareInterruptOffset, GlobalDescriptorTable* globalDescriptorTable, TaskManager* taskManager)
     : m_programmableInterruptControllerMasterCommandPort(0x20),
       m_programmableInterruptControllerMasterDataPort(0x21),
       m_programmableInterruptControllerSlaveCommandPort(0xA0),
       m_programmableInterruptControllerSlaveDataPort(0xA1) {
+    this->m_taskManager = taskManager;
     m_hardwareInterruptOffset = hardwareInterruptOffset;
     uint32_t CodeSegment = globalDescriptorTable->CodeSegmentSelector();
 
@@ -155,20 +156,21 @@ uint32_t InterruptManager::HandleInterrupt(uint8_t interrupt, uint32_t esp) {
 }
 
 uint32_t InterruptManager::DoHandleInterrupt(uint8_t interrupt, uint32_t esp) {
-    if (m_handlers[interrupt] != 0) [[likely]] {
+    if (m_handlers[interrupt] != 0) {
         esp = m_handlers[interrupt]->HandleInterrupt(esp);
-    } else if (interrupt != m_hardwareInterruptOffset) [[unlikely]] {
-        printf("UNHANDLED EXCEPTION: ");
+    } else if (interrupt != m_hardwareInterruptOffset) {
+        printf("UNHANDLED INTERRUPT 0x");
         printhex(interrupt);
-        printf("\n");
     }
 
-    if (m_hardwareInterruptOffset <= interrupt &&
-        interrupt < m_hardwareInterruptOffset + 16) {
+    if (interrupt == m_hardwareInterruptOffset) {
+        esp = (uint32_t)((uint64_t)m_taskManager->Schedule((CPUState*)esp));
+    }
+
+    if (m_hardwareInterruptOffset <= interrupt && interrupt < m_hardwareInterruptOffset + 16) {
         m_programmableInterruptControllerMasterCommandPort.Write(0x20);
-        if (m_hardwareInterruptOffset + 8 <= interrupt) {
+        if (m_hardwareInterruptOffset + 8 <= interrupt)
             m_programmableInterruptControllerSlaveCommandPort.Write(0x20);
-        }
     }
 
     return esp;
