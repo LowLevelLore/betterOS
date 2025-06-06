@@ -91,44 +91,54 @@ void PeripheralComponentInterconnectController::SelectDrivers(better_os::drivers
                     BaseAddressRegister bar = GetBaseAddressRegister(bus, device, function, barNum);
                     if (bar.address && (bar.type == InputOutput))
                         deviceDescriptor.portBase = (uint64_t)bar.address;
-
-                    switch (deviceDescriptor.vendor_id) {
-                        case 0x1022:  // AMD
-                            switch (deviceDescriptor.device_id) {
-                                case 0x2000:  // am79c973
-                                    printf("AMD AM79C973 ");
-                                    break;
-                            }
-                            break;
-
-                        case 0x8086:  // Intel
-                            switch (deviceDescriptor.device_id) {
-                                case 0x1237:
-                                    printf("Intel 440FX - 82441FX PMC (PCI Bridge) ");
-                                    break;
-                                case 0x7000:
-                                    printf("Intel 82371SB PIIX3 ISA (ISA Bridge) ");
-                                    break;
-                                case 0x7010:
-                                    printf("Intel 82371SB PIIX3 IDE (IDE Controller) ");
-                                    break;
-                                case 0x7113:
-                                    printf("Intel 82371AB/EB/MB PIIX4 ACPI (Power Management Controller) ");
-                                    break;
-                            }
-                            break;
-                    }
-
-                    switch (deviceDescriptor.class_id) {
-                        case 0x03:  // Graphics
-                            switch (deviceDescriptor.subclass_id) {
-                                case 0x00:  // VGA
-                                    printf("VGA ");
-                                    break;
-                            }
-                            break;
-                    }
                 }
+
+                better_os::drivers::Driver* driver = 0;
+
+                switch (deviceDescriptor.vendor_id) {
+                    case 0x1022:  // AMD
+                        switch (deviceDescriptor.device_id) {
+                            case 0x2000:  // am79c973
+                                driver = (better_os::drivers::amd_am79c973*)better_os::basics::MemoryManager::activeMemoryManager->malloc(sizeof(better_os::drivers::amd_am79c973));
+                                if (driver != 0)
+                                    new (driver) better_os::drivers::amd_am79c973(&deviceDescriptor, interruptManager);
+                                printf("AMD AM79C973 ");
+                                driverManager->netDriver = (better_os::drivers::amd_am79c973*)driver;
+                                driverManager->AddDriver(driver);
+                                goto exit_label;
+                                break;
+                        }
+                        break;
+
+                    case 0x8086:  // Intel
+                        switch (deviceDescriptor.device_id) {
+                            case 0x1237:
+                                printf("Intel 440FX - 82441FX PMC (PCI Bridge) ");
+                                break;
+                            case 0x7000:
+                                printf("Intel 82371SB PIIX3 ISA (ISA Bridge) ");
+                                break;
+                            case 0x7010:
+                                printf("Intel 82371SB PIIX3 IDE (IDE Controller) ");
+                                break;
+                            case 0x7113:
+                                printf("Intel 82371AB/EB/MB PIIX4 ACPI (Power Management Controller) ");
+                                break;
+                        }
+                        break;
+                }
+
+                switch (deviceDescriptor.class_id) {
+                    case 0x03:  // Graphics
+                        switch (deviceDescriptor.subclass_id) {
+                            case 0x00:  // VGA
+                                printf("VGA ");
+                                break;
+                        }
+                        break;
+                }
+
+            exit_label:
 
                 printf("PCI -> {BUS: ");
                 printhex(bus & 0xFF);

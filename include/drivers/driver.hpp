@@ -2,9 +2,12 @@
 #define BETTER_OS_DRIVERS_DRIVER_H
 
 #include "../lib/types.hpp"
+#include "amd_am79c973.hpp"
 
 namespace better_os {
 namespace drivers {
+
+class amd_am79c973;
 
 #define MAX_DRIVERS 256
 
@@ -26,6 +29,7 @@ class DriverManager {
     better_os::lib::uint8_t m_numDrivers;
 
    public:
+    better_os::drivers::amd_am79c973* netDriver = nullptr;
     DriverManager();
     ~DriverManager();
 

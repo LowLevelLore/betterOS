@@ -3,7 +3,7 @@
 using namespace better_os::lib;
 using namespace better_os::basics;
 
-MemoryManager* MemoryManager::activeMemoryManager = 0;
+MemoryManager *MemoryManager::activeMemoryManager = 0;
 
 MemoryManager::MemoryManager(size_t start, size_t size) {
     activeMemoryManager = this;
@@ -11,7 +11,7 @@ MemoryManager::MemoryManager(size_t start, size_t size) {
     if (size < sizeof(MemoryChunk)) {
         first = 0;
     } else {
-        first = (MemoryChunk*)start;
+        first = (MemoryChunk *)start;
 
         first->allocated = false;
         first->prev = 0;
@@ -25,10 +25,10 @@ MemoryManager::~MemoryManager() {
         activeMemoryManager = 0;
 }
 
-void* MemoryManager::malloc(size_t size) {
-    MemoryChunk* result = 0;
+void *MemoryManager::malloc(size_t size) {
+    MemoryChunk *result = 0;
 
-    for (MemoryChunk* chunk = first; chunk != 0 && result == 0; chunk = chunk->next)
+    for (MemoryChunk *chunk = first; chunk != 0 && result == 0; chunk = chunk->next)
         if (chunk->size > size && !chunk->allocated)
             result = chunk;
 
@@ -36,7 +36,7 @@ void* MemoryManager::malloc(size_t size) {
         return 0;
 
     if (result->size >= size + sizeof(MemoryChunk) + 1) {
-        MemoryChunk* temp = (MemoryChunk*)((size_t)result + sizeof(MemoryChunk) + size);
+        MemoryChunk *temp = (MemoryChunk *)((size_t)result + sizeof(MemoryChunk) + size);
 
         temp->allocated = false;
         temp->size = result->size - size - sizeof(MemoryChunk);
@@ -50,11 +50,11 @@ void* MemoryManager::malloc(size_t size) {
     }
 
     result->allocated = true;
-    return (void*)(((size_t)result) + sizeof(MemoryChunk));
+    return (void *)(((size_t)result) + sizeof(MemoryChunk));
 }
 
-void MemoryManager::free(void* ptr) {
-    MemoryChunk* chunk = (MemoryChunk*)((size_t)ptr - sizeof(MemoryChunk));
+void MemoryManager::free(void *ptr) {
+    MemoryChunk *chunk = (MemoryChunk *)((size_t)ptr - sizeof(MemoryChunk));
 
     chunk->allocated = false;
 
@@ -75,32 +75,32 @@ void MemoryManager::free(void* ptr) {
     }
 }
 
-void* operator new(unsigned size) {
+void *operator new(unsigned size) {
     if (MemoryManager::activeMemoryManager == 0)
         return nullptr;
     return MemoryManager::activeMemoryManager->malloc(size);
 }
 
-void* operator new[](unsigned size) {
+void *operator new[](unsigned size) {
     if (MemoryManager::activeMemoryManager == 0)
         return nullptr;
     return MemoryManager::activeMemoryManager->malloc(size);
 }
 
-void* operator new(unsigned size, void* ptr) {
+void *operator new(unsigned size, void *ptr) {
     return ptr;
 }
 
-void* operator new[](unsigned size, void* ptr) {
+void *operator new[](unsigned size, void *ptr) {
     return ptr;
 }
 
-void operator delete(void* ptr) {
+void operator delete(void *ptr) {
     if (MemoryManager::activeMemoryManager != 0)
         MemoryManager::activeMemoryManager->free(ptr);
 }
 
-void operator delete[](void* ptr) {
+void operator delete[](void *ptr) {
     if (MemoryManager::activeMemoryManager != 0)
         MemoryManager::activeMemoryManager->free(ptr);
 }

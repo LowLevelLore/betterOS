@@ -62,6 +62,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // Set up VGA graphics.
     // better_os::drivers::VideoGraphicsArray_320x200x8 vgaHandler;
 
+    better_os::drivers::amd_am79c973* eth0 = driverManager.netDriver;
+
     // Activate interrupts.
     interruptManager.Activate();
     printf("Interrupts Activated.\n\n");
@@ -71,6 +73,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     for (int i = 0; i < 100; i++) {
         printf("\n");
     }
+
+    eth0->Send((uint8_t*)"Hello Network", 13);
 
     printf("heap: 0x");
     printhex((heap >> 24) & 0xFF);
