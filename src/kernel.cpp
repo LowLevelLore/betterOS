@@ -14,13 +14,17 @@ extern "C" void callConstructors() {
 
 using namespace better_os::lib;
 
+void sysprintf(char* str) {
+    asm("int $0x80" : : "a"(4), "b"(str));
+}
+
 void taskA() {
     while (true)
-        printf("A");
+        sysprintf("A");
 }
 void taskB() {
     while (true)
-        printf("B");
+        sysprintf("B");
 }
 
 extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot_magic*/) {
@@ -29,70 +33,64 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     better_os::basics::TaskManager taskManager;
     better_os::basics::Task task1(&globalDescriptorTable, taskA);
     better_os::basics::Task task2(&globalDescriptorTable, taskB);
-    // taskManager.AddTask(&task1);
-    // taskManager.AddTask(&task2);
+    taskManager.AddTask(&task1);
+    taskManager.AddTask(&task2);
 
     uint32_t* memupper = (uint32_t*)(((size_t)((uint64_t)(multiboot_structure))) + 8);
     size_t heap = 10 * 1024 * 1024;
     better_os::basics::MemoryManager memoryManager(heap, (*memupper) * 1024 - heap - 10 * 1024);
 
     better_os::basics::InterruptManager interruptManager(0x20, &globalDescriptorTable, &taskManager);
+    better_os::SyscallHandler syscalls(&interruptManager, 0x80);
 
     printf("GDT and InterruptManager initialized.\n");
     printf("Initializing drivers.\n");
 
-    // Set up driver manager.
     better_os::drivers::DriverManager driverManager;
 
-    // Initialize and register mouse driver.
     better_os::drivers::VGAMouseEventHandler vgaMouseEventHandler;
     better_os::drivers::MouseDriver mouseDriver(&interruptManager, &vgaMouseEventHandler);
     driverManager.AddDriver(&mouseDriver);
 
-    // Initialize and register keyboard driver.
     better_os::drivers::VGAKeyboardEventHandler vgaKeyboardEventHandler;
     better_os::drivers::KeyboardDriver keyboardDriver(&interruptManager, &vgaKeyboardEventHandler);
     driverManager.AddDriver(&keyboardDriver);
 
-    // Initialize PCI controller and select drivers.
     better_os::hardware::PeripheralComponentInterconnectController pciController;
     pciController.SelectDrivers(&driverManager, &interruptManager);
     printf("All Drivers Initialized.\n");
 
-    // Set up VGA graphics.
-    // better_os::drivers::VideoGraphicsArray_320x200x8 vgaHandler;
-
     better_os::drivers::amd_am79c973* eth0 = driverManager.netDriver;
 
-    // Activate interrupts.
+    better_os::drivers::AdvancedTechnologyAttachment ata0m(true, 0x1F0);
+    void* data = ata0m.Identify();
+    if (data) {
+        delete[] data;
+    }
+
     interruptManager.Activate();
     printf("Interrupts Activated.\n\n");
     printf("betterOS - boot successful\n\t\t\t\tBy: xZist\n===============================================================================\n\n");
 
-    // Clear the text screen area.
     for (int i = 0; i < 100; i++) {
         printf("\n");
     }
 
     eth0->Send((uint8_t*)"Hello Network", 13);
 
-    printf("heap: 0x");
-    printhex((heap >> 24) & 0xFF);
-    printhex((heap >> 16) & 0xFF);
-    printhex((heap >> 8) & 0xFF);
-    printhex((heap) & 0xFF);
+    const char* website = "http://www.AlgorithMan.de";
+    uint8_t dataToWrite[512] = {0};
+    for (size_t i = 0; i < 25; ++i)
+        dataToWrite[i] = website[i];
 
-    void* allocated = memoryManager.malloc(1024);
-    printf("\nallocated: 0x");
-    printhex(((uint64_t)allocated >> 24) & 0xFF);
-    printhex(((uint64_t)allocated >> 16) & 0xFF);
-    printhex(((uint64_t)allocated >> 8) & 0xFF);
-    printhex(((uint64_t)allocated) & 0xFF);
-    printf("\n");
+    ata0m.Write28(0, dataToWrite, 512);
+    ata0m.Flush();
 
-    // Set the graphics mode and draw a rectangle.
-    // vgaHandler.SetMode();
-    // vgaHandler.FillRectangle(0, 0, 320, 200, 0x00, 0x00, 0xA8);
+    char* readData = ata0m.Read28(0, 64);
+    if (readData) {
+        printf(readData);
+        delete[] readData;
+    }
 
     while (1);
 }

@@ -9,6 +9,7 @@
 
 // Device drivers.
 #include "drivers/amd_am79c973.hpp"
+#include "drivers/ata.hpp"
 #include "drivers/driver.hpp"
 #include "drivers/keyboard.hpp"
 #include "drivers/mouse.hpp"
@@ -27,4 +28,7 @@
 #include "gui/widget.hpp"
 #include "gui/window.hpp"
 
-#endif // BETTER_OS_ALL_H
+// Syscalls..
+#include "syscalls.hpp"
+
+#endif  // BETTER_OS_ALL_H

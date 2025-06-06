@@ -8,7 +8,7 @@ LDPARAMS = -melf_i386
 objects = build/loader.o build/basics/gdt.o build/hardware/pci.o build/hardware/port.o build/basics/interruptstubs.o \
 			build/basics/interrupts.o build/drivers/driver.o build/drivers/vga.o build/drivers/keyboard.o build/basics/multitasking.o build/basics/memorymanagement.o \
 			build/drivers/mouse.o build/lib/stdlib.o  build/gui/widget.o build/gui/desktop.o build/gui/window.o build/kernel.o \
-			build/drivers/amd_am79c973.o 
+			build/drivers/amd_am79c973.o build/drivers/ata.o build/syscalls.o
 
 build/%.o: src/%.cpp structure
 	@$(GPP) $(GPPFLAGS) -o $@ -c $< 
@@ -19,7 +19,7 @@ build/%.o: src/%.s structure
 betterKernel.bin: linker.ld $(objects) structure
 	@$(LD) $(LDPARAMS) -T $< -o $@ $(objects)
 
-betterKernel.iso: betterKernel.bin structure
+betterKernel.iso: betterKernel.bin structure 
 	@mkdir -p iso/
 	@mkdir -p iso/boot/
 	@mkdir -p iso/boot/grub/
@@ -40,6 +40,7 @@ betterKernel.iso: betterKernel.bin structure
 clean:
 	@rm -rf *.o *.bin *.iso iso/
 	@rm -rf build
+	@rm -rf disk.img
 
 commit:
 	@make clean
@@ -48,6 +49,7 @@ commit:
 	@git push -u master
 
 structure:
+	@qemu-img create -f raw disk.img 10M
 	@mkdir -p build
 	@mkdir -p build/basics
 	@mkdir -p build/hardware
