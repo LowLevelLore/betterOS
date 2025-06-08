@@ -8,7 +8,7 @@ LDPARAMS = -melf_i386
 objects = build/loader.o build/basics/gdt.o build/hardware/pci.o build/hardware/port.o build/basics/interruptstubs.o \
 			build/basics/interrupts.o build/drivers/driver.o build/drivers/vga.o build/drivers/keyboard.o build/basics/multitasking.o build/basics/memorymanagement.o \
 			build/drivers/mouse.o build/lib/stdlib.o  build/gui/widget.o build/gui/desktop.o build/gui/window.o build/kernel.o \
-			build/drivers/amd_am79c973.o build/drivers/ata.o build/syscalls.o
+			build/drivers/amd_am79c973.o build/drivers/ata.o build/syscalls.o  build/net/ethernet.o build/net/arp.o
 
 build/%.o: src/%.cpp structure
 	@$(GPP) $(GPPFLAGS) -o $@ -c $< 
@@ -56,4 +56,5 @@ structure:
 	@mkdir -p build/drivers
 	@mkdir -p build/lib
 	@mkdir -p build/gui
+	@mkdir -p build/net
 

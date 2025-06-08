@@ -9,13 +9,26 @@
 
 namespace better_os {
 namespace drivers {
+
+class RawDataHandler {
+   protected:
+    amd_am79c973* backend;
+
+   public:
+    RawDataHandler(amd_am79c973* backend);
+    ~RawDataHandler();
+
+    virtual bool OnRawDataReceived(better_os::lib::uint8_t* buffer, better_os::lib::uint32_t size);
+    void Send(better_os::lib::uint8_t* buffer, better_os::lib::uint32_t size);
+};
+
 class amd_am79c973 : public Driver, better_os::basics::InterruptHandler {
     struct InitializationBlock {
         better_os::lib::uint16_t mode;
-        better_os::lib::uint32_t reserved1 : 4;
-        better_os::lib::uint32_t numSendBuffers : 4;
-        better_os::lib::uint32_t reserved2 : 4;
-        better_os::lib::uint32_t numRecvBuffers : 4;
+        unsigned reserved1 : 4;
+        unsigned numSendBuffers : 4;
+        unsigned reserved2 : 4;
+        unsigned numRecvBuffers : 4;
         better_os::lib::uint64_t physicalAddress : 48;
         better_os::lib::uint16_t reserved3;
         better_os::lib::uint64_t logicalAddress;
@@ -50,6 +63,8 @@ class amd_am79c973 : public Driver, better_os::basics::InterruptHandler {
     better_os::lib::uint8_t recvBuffers[2 * 1024 + 15][8];
     better_os::lib::uint8_t currentRecvBuffer;
 
+    RawDataHandler* handler;
+
    public:
     amd_am79c973(better_os::hardware::PeripheralComponentInterconnectDeviceDescriptor* dev, better_os::basics::InterruptManager* interruptManager);
     ~amd_am79c973();
@@ -60,6 +75,12 @@ class amd_am79c973 : public Driver, better_os::basics::InterruptHandler {
 
     void Send(uint8_t* buffer, int count);
     void Receive();
+
+    void SetIPAddress(better_os::lib::uint32_t address);
+    better_os::lib::uint32_t GetIPAddress();
+
+    void SetHandler(RawDataHandler* handler);
+    better_os::lib::uint64_t GetMACAddress();
 };
 }  // namespace drivers
 }  // namespace better_os

@@ -99,12 +99,17 @@ void PeripheralComponentInterconnectController::SelectDrivers(better_os::drivers
                     case 0x1022:  // AMD
                         switch (deviceDescriptor.device_id) {
                             case 0x2000:  // am79c973
-                                driver = (better_os::drivers::amd_am79c973*)better_os::basics::MemoryManager::activeMemoryManager->malloc(sizeof(better_os::drivers::amd_am79c973));
-                                if (driver != 0)
-                                    new (driver) better_os::drivers::amd_am79c973(&deviceDescriptor, interruptManager);
                                 printf("AMD AM79C973 ");
-                                driverManager->netDriver = (better_os::drivers::amd_am79c973*)driver;
-                                driverManager->AddDriver(driver);
+                                driver = (better_os::drivers::amd_am79c973*)better_os::basics::MemoryManager::activeMemoryManager->malloc(sizeof(better_os::drivers::amd_am79c973));
+                                if (driver != 0) {
+                                    new (driver) better_os::drivers::amd_am79c973(
+                                        &deviceDescriptor, interruptManager);
+                                    driverManager->netDriver =
+                                        (better_os::drivers::amd_am79c973*)
+                                            driver;
+                                    driverManager->AddDriver(driver);
+                                } else
+                                    printf("Instantiation failed");
                                 goto exit_label;
                                 break;
                         }

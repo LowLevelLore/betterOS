@@ -3,6 +3,23 @@
 using namespace better_os::lib;
 using namespace better_os::drivers;
 
+RawDataHandler::RawDataHandler(amd_am79c973 *backend) {
+    this->backend = backend;
+    backend->SetHandler(this);
+}
+
+RawDataHandler::~RawDataHandler() {
+    backend->SetHandler(0);
+}
+
+bool RawDataHandler::OnRawDataReceived(uint8_t *buffer, uint32_t size) {
+    return false;
+}
+
+void RawDataHandler::Send(uint8_t *buffer, uint32_t size) {
+    backend->Send(buffer, size);
+}
+
 amd_am79c973::amd_am79c973(
     better_os::hardware::PeripheralComponentInterconnectDeviceDescriptor *dev,
     better_os::basics::InterruptManager *interruptManager)
@@ -17,6 +34,7 @@ amd_am79c973::amd_am79c973(
       registerAddressPort(dev->portBase + 0x12),
       resetPort(dev->portBase + 0x14),
       busControlRegisterDataPort(dev->portBase + 0x16) {
+    this->handler = nullptr;
     currentSendBuffer = 0;
     currentRecvBuffer = 0;
 
@@ -27,7 +45,8 @@ amd_am79c973::amd_am79c973(
     uint8_t MAC4 = MACAddress4Port.Read() % 256;
     uint8_t MAC5 = MACAddress4Port.Read() / 256;
 
-    uint64_t MAC = MAC5 << 40 | MAC4 << 32 | MAC3 << 24 | MAC2 << 16 | MAC1 << 8 | MAC0;
+    uint64_t MAC = ((uint64_t)MAC5 << 40) | ((uint64_t)MAC4 << 32) | ((uint64_t)MAC3 << 24) |
+                   ((uint64_t)MAC2 << 16) | ((uint64_t)MAC1 << 8) | (uint64_t)MAC0;
 
     // 32 bit mode
     registerAddressPort.Write(20);
@@ -103,7 +122,7 @@ amd_am79c973::HandleInterrupt(uint32_t esp) {
     if ((temp & 0x2000) == 0x2000) printf("AMD AM7C973 COLLISION ERROR\n");
     if ((temp & 0x1000) == 0x1000) printf("AMD AM7C973 MISSED FRAME\n");
     if ((temp & 0x0800) == 0x0800) printf("AMD AM7C973 MEMORY ERROR\n");
-    if ((temp & 0x0400) == 0x0400) printf("AMD AM7C973 DATA RECEIVED\n");
+    if ((temp & 0x0400) == 0x0400) Receive();
     if ((temp & 0x0200) == 0x0200) printf("AMD AM7C973 DATA SENT\n");
 
     // ACK
@@ -127,6 +146,13 @@ void amd_am79c973::Send(uint8_t *buffer, int size) {
          src >= buffer; src--, dst--)
         *dst = *src;
 
+    printf("Sending: ");
+    for (int i = 0; i < size; i++) {
+        better_os::lib::printhex(buffer[i]);
+        printf(" ");
+    }
+    // better_os::lib::printf((char *)buffer);
+
     sendBufferDescriptor[sendDescriptor].avail = 0;
     sendBufferDescriptor[sendDescriptor].flags2 = 0;
     sendBufferDescriptor[sendDescriptor].flags = 0x8300F000 | ((uint16_t)((-size) & 0xFFF));
@@ -148,6 +174,11 @@ void amd_am79c973::Receive() {
 
             uint8_t *buffer = (uint8_t *)(recvBufferDescriptor[currentRecvBuffer].address);
 
+            if (handler != 0)
+                if (handler->OnRawDataReceived(buffer, size))
+                    Send(buffer, size);
+
+            size = 64;
             for (int i = 0; i < size; i++) {
                 better_os::lib::printhex(buffer[i]);
                 printf(" ");
@@ -156,4 +187,20 @@ void amd_am79c973::Receive() {
         recvBufferDescriptor[currentRecvBuffer].flags2 = 0;
         recvBufferDescriptor[currentRecvBuffer].flags = 0x8000F7FF;
     }
+}
+
+void amd_am79c973::SetHandler(RawDataHandler *handler) {
+    this->handler = handler;
+}
+
+uint64_t amd_am79c973::GetMACAddress() {
+    return initBlock.physicalAddress;
+}
+
+void amd_am79c973::SetIPAddress(uint32_t ip) {
+    initBlock.logicalAddress = ((uint64_t)ip) << 32;
+}
+
+uint32_t amd_am79c973::GetIPAddress() {
+    return (uint32_t)(initBlock.logicalAddress >> 32);
 }

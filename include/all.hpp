@@ -28,6 +28,10 @@
 #include "gui/widget.hpp"
 #include "gui/window.hpp"
 
+// Internet related things
+#include "net/arp.hpp"
+#include "net/ethernet.hpp"
+
 // Syscalls..
 #include "syscalls.hpp"
 
