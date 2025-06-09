@@ -70,12 +70,12 @@ uint64_t AddressResolutionProtocol::Resolve(uint32_t IP_BE) {
     if (result == 0xFFFFFFFFFFFF)
         RequestMACAddress(IP_BE);
 
-    int timeout = 100000;
+    int timeout = 1000000;
     while (result == 0xFFFFFFFFFFFF and --timeout > 0)  // possible infinite loop
         result = GetMACFromCache(IP_BE);
 
     if (timeout <= 0) {
-        printf("ARP Request Timeout");
+        printf("ARP Request Timeout\n");
     }
 
     return result;

@@ -79,7 +79,7 @@ amd_am79c973::amd_am79c973(
         sendBufferDescriptor[i].avail = 0;
 
         recvBufferDescriptor[i].address = (((uint32_t)&recvBuffers[i]) + 15) & ~(uint32_t)0xF;
-        recvBufferDescriptor[i].flags = 0xF7FF | 0x80000000;
+        recvBufferDescriptor[i].flags = 0x80000000 | (2048 & 0xFFF);
         recvBufferDescriptor[i].flags2 = 0;
         recvBufferDescriptor[i].avail = 0;
     }

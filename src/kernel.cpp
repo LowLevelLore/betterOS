@@ -66,13 +66,13 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
         delete[] data;
     }
 
-    // 10.0.2.15
-    uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
+    // 192.168.1.50
+    uint8_t ip1 = 192, ip2 = 168, ip3 = 1, ip4 = 101;
     // uint32_t ip_le = ((uint32_t)ip1) | ((uint32_t)ip2 << 8) | ((uint32_t)ip3 << 16) | ((uint32_t)ip4 << 24);
     uint32_t ip_be = ((uint32_t)ip4 << 24) | ((uint32_t)ip3 << 16) | ((uint32_t)ip2 << 8) | (uint32_t)ip1;
 
-    // 10.0.2.2
-    uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 2;
+    // 192.168.1.1
+    uint8_t gip1 = 192, gip2 = 168, gip3 = 1, gip4 = 1;
     // uint32_t gip_le = ((uint32_t)gip1) | ((uint32_t)gip2 << 8) | ((uint32_t)gip3 << 16) | ((uint32_t)gip4 << 24);
     uint32_t gip_be = ((uint32_t)gip4 << 24) | ((uint32_t)gip3 << 16) | ((uint32_t)gip2 << 8) | (uint32_t)gip1;
 
@@ -90,21 +90,21 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     //     printf("\n");
     // }
 
-    // const char* website = "Can I pass ?";
-    // uint8_t dataToWrite[512] = {0};
-    // for (size_t i = 0; i < 12; ++i)
-    //     dataToWrite[i] = website[i];
+    const char* website = "Can I pass ?";
+    uint8_t dataToWrite[512] = {0};
+    for (size_t i = 0; i < 12; ++i)
+        dataToWrite[i] = website[i];
 
-    // ata0m.Write28(0, dataToWrite, 512);
-    // ata0m.Flush();
+    ata0m.Write28(0, dataToWrite, 512);
+    ata0m.Flush();
 
-    // char* readData = ata0m.Read28(0, 64);
-    // if (readData) {
-    //     printf(readData);
-    //     printf("\n");
-    //     delete[] readData;
-    // }
-    // printf("\n");
+    char* readData = ata0m.Read28(0, 64);
+    if (readData) {
+        printf(readData);
+        printf("\n");
+        delete[] readData;
+    }
+    printf("\n");
 
     arp.Resolve(gip_be);
 
